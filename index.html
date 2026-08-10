@@ -1,0 +1,490 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ProofChain — verified waste-to-credit on Stellar</title>
+    <meta
+      name="description"
+      content="Every weigh-in is signed on-device, checked for integrity, sealed into a Merkle batch, and anchored on the Stellar ledger. Credit buyers verify the tonne themselves — no trust in us required."
+    />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#fbfaf7" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#101113" media="(prefers-color-scheme: dark)" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="ProofChain — verified waste-to-credit on Stellar" />
+    <meta
+      property="og:description"
+      content="A plastic credit is worth $140–800 per tonne. That is a direct financial incentive to spoof weigh-ins. ProofChain makes the tonne independently verifiable."
+    />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='26' font-size='26'>%F0%9F%94%97</text></svg>"
+    />
+    <!--
+      Type: Newsreader (news serif, long-form argument), Public Sans (the US
+      public-records typeface), JetBrains Mono (true tabular figures for hashes).
+      display=swap so text is never invisible; every family has a system
+      fallback in styles.css so the page still reads offline.
+    -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400;1,6..72,500&family=Public+Sans:wght@300;400;500;600&display=swap"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+
+  <body>
+    <a href="#main" class="skip-link">Skip to content</a>
+
+    <!-- ── Masthead ─────────────────────────────────────────────────── -->
+    <header class="masthead">
+      <div class="shell masthead__inner">
+        <a class="wordmark" href="#top">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path
+              d="M4 12.5 9.5 18 20 6.5"
+              stroke="currentColor"
+              stroke-width="2.2"
+              stroke-linecap="square"
+            />
+          </svg>
+          ProofChain
+        </a>
+        <nav aria-label="Sections">
+          <a href="#pipeline">Pipeline</a>
+          <a href="#integrity">Integrity</a>
+          <a href="#verify">Verify it yourself</a>
+          <a href="#scope">Scope</a>
+        </nav>
+        <a
+          class="btn btn--solid"
+          href="https://stellar.expert/explorer/testnet/tx/3fb0f496f209507098e6439c646a60d6a576de856a28afbb4f44598b77dc512f"
+          rel="noopener"
+          >Verify a sample batch</a
+        >
+      </div>
+    </header>
+
+    <main id="main">
+      <!-- ── Hero ───────────────────────────────────────────────────── -->
+      <section class="hero" id="top">
+        <div class="shell hero__inner">
+          <div>
+            <span class="badge" data-lift style="--lift-order: 0"
+              ><span class="badge__dot"></span>Stellar testnet pilot</span
+            >
+
+            <h1 data-lift style="--lift-order: 1">
+              A tonne of plastic you can <em>verify yourself</em>.
+            </h1>
+
+            <p class="hero__lede" data-lift style="--lift-order: 2">
+              Waste collectors weigh in on a phone. The device signs the reading with a key that
+              never leaves it. We check it, seal it into a Merkle batch, and anchor the root on the
+              Stellar ledger — so a credit buyer can recompute the whole thing without trusting a
+              single claim we make.
+            </p>
+
+            <div class="hero__actions" data-lift style="--lift-order: 3">
+              <a
+                class="btn btn--solid"
+                href="https://stellar.expert/explorer/testnet/tx/3fb0f496f209507098e6439c646a60d6a576de856a28afbb4f44598b77dc512f"
+                rel="noopener"
+              >
+                Verify a sample batch
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                  <path
+                    d="M2 8h12M9 3l5 5-5 5"
+                    stroke="currentColor"
+                    stroke-width="1.6"
+                    stroke-linecap="square"
+                  />
+                </svg>
+              </a>
+              <a class="btn btn--ghost" href="#verify">How verification works</a>
+            </div>
+
+            <dl class="hero__stats" data-lift style="--lift-order: 4">
+              <div class="stat">
+                <dt>Integrity checks at ingest</dt>
+                <dd>7</dd>
+              </div>
+              <div class="stat">
+                <dt>Trust-kernel tests</dt>
+                <dd>46</dd>
+              </div>
+              <div class="stat">
+                <dt>Stroops per anchor</dt>
+                <dd>100</dd>
+              </div>
+              <div class="stat">
+                <dt>Collector keys we hold</dt>
+                <dd>0</dd>
+              </div>
+            </dl>
+          </div>
+
+          <!-- The proof, up front. These are real values from a live testnet run. -->
+          <div class="hero__proof" data-lift style="--lift-order: 5">
+          <aside class="receipt" aria-labelledby="receipt-title">
+            <div class="receipt__head">
+              <span class="receipt__title" id="receipt-title">Anchor receipt — batch sealed</span>
+              <span class="chip">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path
+                    d="M4 12.5 9.5 18 20 6.5"
+                    stroke="currentColor"
+                    stroke-width="3"
+                    stroke-linecap="square"
+                  />
+                </svg>
+                Verified
+              </span>
+            </div>
+
+            <dl>
+              <div class="receipt__row">
+                <dt>Network</dt>
+                <dd>stellar testnet · horizon-testnet.stellar.org</dd>
+              </div>
+              <div class="receipt__row">
+                <dt>Transaction</dt>
+                <dd data-hash>3fb0f496f209507098e6439c646a60d6a576de856a28afbb4f44598b77dc512f</dd>
+              </div>
+              <div class="receipt__row">
+                <dt>Ledger</dt>
+                <dd>4033690</dd>
+              </div>
+              <div class="receipt__row">
+                <dt>Operation</dt>
+                <dd>manageData + memo.hash(root)</dd>
+              </div>
+              <div class="receipt__row">
+                <dt>Memo hash</dt>
+                <dd class="match">= sealed Merkle root ✓</dd>
+              </div>
+              <div class="receipt__row">
+                <dt>Fee</dt>
+                <dd>100 stroops</dd>
+              </div>
+            </dl>
+
+            <div class="receipt__foot">
+              <button
+                class="copy"
+                type="button"
+                data-copy="3fb0f496f209507098e6439c646a60d6a576de856a28afbb4f44598b77dc512f"
+              >
+                Copy tx hash
+              </button>
+              <a
+                class="copy"
+                href="https://stellar.expert/explorer/testnet/tx/3fb0f496f209507098e6439c646a60d6a576de856a28afbb4f44598b77dc512f"
+                rel="noopener"
+                >Check it on Horizon ↗</a
+              >
+            </div>
+          </aside>
+
+          <p class="hairline-note">
+            This is not an illustration. The pipeline was run end-to-end against Stellar testnet and
+            the anchor above was confirmed back off the ledger before the transaction ID was
+            recorded.
+          </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── Why this matters ───────────────────────────────────────── -->
+      <section class="band section--tight" id="why">
+        <div class="shell">
+          <p class="eyebrow"><span class="num">01</span> The problem</p>
+
+          <!--
+            The four guarantees that used to sit here (authenticity, integrity,
+            immutability, verifiability) were removed: the pipeline and integrity
+            sections below demonstrate all four, so listing them first was the
+            same argument told twice.
+          -->
+          <div class="threat">
+            <blockquote>
+              A plastic credit is worth <strong>$140–800 per tonne</strong>. That is a direct
+              financial incentive to invent a weigh-in that never happened.
+            </blockquote>
+            <p class="lede">
+              Most waste-credit systems answer this with a spreadsheet and a promise. ProofChain
+              answers it with evidence a buyer can recompute on their own machine.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── Pipeline ───────────────────────────────────────────────── -->
+      <section id="pipeline">
+        <div class="shell">
+          <p class="eyebrow"><span class="num">02</span> Weigh-in to audit report</p>
+
+          <div class="section-head">
+            <h2>Six steps, and the evidence hardens at every one.</h2>
+            <p>
+              Follow a single weigh-in through the system. The panel on the right shows what the
+              record actually looks like at that moment — payload, verdict, root, transaction.
+            </p>
+          </div>
+
+          <div class="pipeline">
+            <div class="steps" role="tablist" aria-label="Pipeline stages" data-steps></div>
+            <div data-panels></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── Integrity ──────────────────────────────────────────────── -->
+      <section class="band section--tight" id="integrity">
+        <div class="shell">
+          <p class="eyebrow"><span class="num">03</span> Integrity v1</p>
+
+          <div class="section-head section-head--tight">
+            <h2>Seven checks, each named for the attack it stops.</h2>
+            <p>
+              A <b>fail</b> quarantines the event permanently; it can never enter a batch. A
+              <b>warn</b> is recorded but does not block.
+            </p>
+          </div>
+
+          <div class="checks" data-checks></div>
+        </div>
+      </section>
+
+      <!-- ── Verify yourself ────────────────────────────────────────── -->
+      <section id="verify">
+        <div class="shell">
+          <p class="eyebrow"><span class="num">04</span> Don't trust us</p>
+
+          <div class="section-head">
+            <h2>Verify a batch on your own machine.</h2>
+            <p>
+              The audit report is public and needs no authentication. Everything below runs with
+              <code>curl</code>, <code>jq</code> and <code>node</code> against a batch ID you were
+              handed — nothing else.
+            </p>
+          </div>
+
+          <!-- The four tabs are the four steps; a parallel numbered list beside them
+               said the same thing twice and doubled the section's height. -->
+          <div class="tabs" role="tablist" aria-label="Verification commands" data-tabs></div>
+          <div data-terminals></div>
+
+          <p class="hairline-note">
+            Four passes and the tonne stands on its own. Fail any one of them and you should reject
+            the batch — including if we tell you otherwise.
+          </p>
+        </div>
+      </section>
+
+
+      <!-- ── Scope ──────────────────────────────────────────────────── -->
+      <section class="section--tight" id="scope">
+        <div class="shell">
+          <p class="eyebrow"><span class="num">05</span> Maturity, stated plainly</p>
+
+          <div class="section-head">
+            <h2>What this release proves — and what it does not.</h2>
+            <p>
+              ProofChain is a testnet pilot build, not a certified credit issuer. A verification
+              system that overstates itself defeats its own purpose, so the boundary is printed here
+              rather than buried in a footnote.
+            </p>
+          </div>
+
+          <div class="scope">
+            <div class="scope__col scope--in">
+              <h3>Shipped in this release</h3>
+              <ul>
+                <li>
+                  <span>✓</span>
+                  <div>
+                    <b>On-device weigh-in signing</b>
+                    <i>ed25519; the private key never reaches the server</i>
+                  </div>
+                </li>
+                <li>
+                  <span>✓</span>
+                  <div>
+                    <b>Integrity v1</b>
+                    <i>seven checks, quarantine on failure, verdict frozen at ingest</i>
+                  </div>
+                </li>
+                <li>
+                  <span>✓</span>
+                  <div>
+                    <b>Merkle batch sealing</b>
+                    <i>membership and ordering frozen at seal time</i>
+                  </div>
+                </li>
+                <li>
+                  <span>✓</span>
+                  <div>
+                    <b>Stellar anchoring</b>
+                    <i>classic layer, verified back off the ledger before recording</i>
+                  </div>
+                </li>
+                <li>
+                  <span>✓</span>
+                  <div>
+                    <b>Independent verification</b>
+                    <i>public audit report, proofs, Horizon lookup, CSV export</i>
+                  </div>
+                </li>
+              </ul>
+            </div>
+
+            <div class="scope__col scope--out">
+              <h3>Not in scope yet</h3>
+              <ul>
+                <li>
+                  <span>—</span>
+                  <div>
+                    <b>Photo content verification</b>
+                    <i>bytes are hashed, not analysed for material or tampering</i>
+                  </div>
+                </li>
+                <li>
+                  <span>—</span>
+                  <div>
+                    <b>Behavioural baselining</b>
+                    <i>per-collector anomaly detection deferred to v2</i>
+                  </div>
+                </li>
+                <li>
+                  <span>—</span>
+                  <div>
+                    <b>Soroban credit contract</b>
+                    <i>post-pilot; the classic layer already proves immutability</i>
+                  </div>
+                </li>
+                <li>
+                  <span>—</span>
+                  <div>
+                    <b>Public network deployment</b>
+                    <i>testnet only, pending a security audit</i>
+                  </div>
+                </li>
+                <li>
+                  <span>—</span>
+                  <div>
+                    <b>Verra accreditation</b>
+                    <i>this is a technical proof, not a credit issuer</i>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── Closing ────────────────────────────────────────────────── -->
+      <section class="closing band section--tight">
+        <div class="shell">
+          <h2>Bring a batch ID. Leave with a tonne you checked yourself.</h2>
+          <p class="lede" style="margin-top: 1.5rem">
+            The anchor below is a real one, on the public testnet ledger. Open it, compare the memo
+            hash to the sealed root, and decide for yourself.
+          </p>
+          <div class="hero__actions">
+            <a
+              class="btn btn--solid"
+              href="https://stellar.expert/explorer/testnet/tx/3fb0f496f209507098e6439c646a60d6a576de856a28afbb4f44598b77dc512f"
+              rel="noopener"
+            >
+              Verify a sample batch
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <path
+                  d="M2 8h12M9 3l5 5-5 5"
+                  stroke="currentColor"
+                  stroke-width="1.6"
+                  stroke-linecap="square"
+                />
+              </svg>
+            </a>
+            <a class="btn btn--ghost" href="https://github.com/victorisiguzoruzoma874/proofchain/blob/main/docs/verification.md" rel="noopener"
+              >Read the verification guide</a
+            >
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="shell">
+        <div class="footer__grid">
+          <div>
+            <a class="wordmark" href="#top">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path
+                  d="M4 12.5 9.5 18 20 6.5"
+                  stroke="currentColor"
+                  stroke-width="2.2"
+                  stroke-linecap="square"
+                />
+              </svg>
+              ProofChain
+            </a>
+            <p style="margin-top: 0.85rem; max-width: 26rem; color: var(--ink-soft); font-size: 0.9375rem">
+              Verified waste-to-credit infrastructure. Signed at the scale, sealed in a Merkle tree,
+              anchored on Stellar, and checkable by anyone.
+            </p>
+          </div>
+
+          <div>
+            <h4>Documentation</h4>
+            <ul>
+              <li><a href="https://github.com/victorisiguzoruzoma874/proofchain/blob/main/README.md" rel="noopener">README</a></li>
+              <li><a href="https://github.com/victorisiguzoruzoma874/proofchain/blob/main/docs/verification.md" rel="noopener">Verification guide</a></li>
+              <li><a href="https://github.com/victorisiguzoruzoma874/proofchain/blob/main/docs/architecture.md" rel="noopener">Architecture</a></li>
+              <li><a href="https://github.com/victorisiguzoruzoma874/proofchain/blob/main/docs/runbook.md" rel="noopener">Runbook</a></li>
+            </ul>
+          </div>
+
+          <div>
+            <h4>Public API</h4>
+            <ul>
+              <li><code>GET /batches/:id/report</code></li>
+              <li><code>GET /batches/:id/verify/:eventId</code></li>
+              <li><code>GET /batches/:id/report/events.csv</code></li>
+              <li><code>POST /events</code></li>
+            </ul>
+          </div>
+
+          <div>
+            <h4>Ledger</h4>
+            <ul>
+              <li>
+                <a
+                  href="https://stellar.expert/explorer/testnet/tx/3fb0f496f209507098e6439c646a60d6a576de856a28afbb4f44598b77dc512f"
+                  rel="noopener"
+                  >Anchor transaction ↗</a
+                >
+              </li>
+              <li><a href="https://horizon-testnet.stellar.org" rel="noopener">Horizon testnet ↗</a></li>
+              <li>Ledger 4033690</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="footer__note">
+          <span>Stellar testnet pilot · not a certified credit issuer</span>
+          <span>MIT licensed</span>
+        </div>
+      </div>
+    </footer>
+
+    <script src="main.js" defer></script>
+  </body>
+</html>

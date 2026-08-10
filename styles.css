@@ -1,0 +1,1379 @@
+/*
+ * ProofChain landing page.
+ *
+ * Design brief — documentary evidence, not a brochure. The page inherits the
+ * dashboard's language (apps/dashboard/src/app/globals.css): paper stock, ink,
+ * hairline rules instead of card shadows, tabular numerals, and colour reserved
+ * strictly for verification state. Nothing decorative competes with the evidence.
+ *
+ * Type is a motivated triple stack rather than a UI default:
+ *   Newsreader     — a news serif built for long-form argument
+ *   Public Sans    — the US public-records typeface, made for government documents
+ *   JetBrains Mono — true tabular figures, for hashes, weights and ledger numbers
+ *
+ * Every family degrades to a system stack, so the page still reads correctly
+ * offline or over file://.
+ */
+
+:root {
+  --paper: #fbfaf7;
+  --paper-deep: #f3f1ea;
+  --surface: #ffffff;
+  --ink: #17181a;
+  --ink-soft: #5c6068;
+  /* Darker than the dashboard's faint ink: here it carries 11px mono labels on
+     paper, which fails AA at the dashboard's value. Measured 5.17:1 on --paper
+     and 4.75:1 on --paper-deep. */
+  --ink-faint: #676b73;
+  --rule: #dfdcd4;
+  --rule-soft: #ebe8e0;
+  --rule-strong: #17181a;
+
+  --verified: #12694a;
+  --verified-bg: #e8f3ee;
+  --pending: #8a5a12;
+  --pending-bg: #fbf1e0;
+  --broken: #a8261d;
+  --broken-bg: #fbeae8;
+  --accent: #1c4fd8;
+
+  --terminal-bg: #16171a;
+  --terminal-ink: #dcdad4;
+  --terminal-faint: #82868e;
+  --terminal-rule: #2c2e33;
+
+  --serif: "Newsreader", ui-serif, Georgia, "Iowan Old Style", "Times New Roman", serif;
+  --sans: "Public Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, "SF Mono", "Cascadia Mono", Menlo, monospace;
+
+  /* Minimum comfortable tap area — hit zones are expanded to this without
+     inflating the visual bounds of the control. */
+  --tap: 44px;
+
+  --gutter: clamp(1.25rem, 0.5rem + 3vw, 4rem);
+  --measure: 74rem;
+  --prose: 38rem;
+
+  --step: clamp(3.25rem, 2rem + 5vw, 6rem);
+
+  --duration: 320ms;
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #101113;
+    --paper-deep: #0a0b0c;
+    --surface: #17181b;
+    --ink: #ecebe8;
+    --ink-soft: #a4a8b0;
+    --ink-faint: #878b93;
+    --rule: #2b2d31;
+    --rule-soft: #212327;
+    --rule-strong: #ecebe8;
+
+    --verified: #5fd1a3;
+    --verified-bg: #12291f;
+    --pending: #e0a951;
+    --pending-bg: #2b2110;
+    --broken: #f08a80;
+    --broken-bg: #2e1614;
+    --accent: #8fb0ff;
+
+    --terminal-bg: #0a0b0c;
+    --terminal-ink: #dcdad4;
+    --terminal-faint: #82868e;
+    --terminal-rule: #24262a;
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 5rem;
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 1rem;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  font-variant-numeric: tabular-nums;
+  font-optical-sizing: auto;
+  overflow-x: hidden;
+}
+
+/*
+ * Paper grain. The page is meant to read as a printed record, and a perfectly
+ * flat digital surface undercuts that. Rendered from an inline SVG turbulence
+ * filter — no image request, no layout cost, and it sits above everything with
+ * pointer-events off so it never intercepts a click.
+ */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  pointer-events: none;
+  opacity: 0.038;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) body::after {
+    opacity: 0.055;
+  }
+}
+
+a {
+  color: var(--accent);
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+}
+
+a:focus-visible,
+button:focus-visible,
+summary:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+h1,
+h2,
+h3 {
+  margin: 0;
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+
+p {
+  margin: 0;
+  text-wrap: pretty;
+}
+
+code,
+kbd,
+samp {
+  font-family: var(--mono);
+  font-size: 0.86em;
+}
+
+/* ── Layout primitives ─────────────────────────────────────────────── */
+
+.shell {
+  width: 100%;
+  max-width: var(--measure);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+section {
+  padding-block: var(--step);
+  border-top: 1px solid var(--rule);
+}
+
+/*
+ * Weight hierarchy. Uniformly-sized sections are what make a page read as
+ * documentation rather than a landing page, so supporting sections get a
+ * lighter vertical budget than the ones carrying the argument.
+ */
+.section--tight {
+  padding-block: calc(var(--step) * 0.62);
+}
+
+.eyebrow {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  margin-bottom: 1.75rem;
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.eyebrow::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--rule);
+}
+
+.eyebrow .num {
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.section-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1.25rem;
+  margin-bottom: clamp(2.5rem, 1rem + 4vw, 4rem);
+}
+
+@media (min-width: 62rem) {
+  .section-head {
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+    gap: clamp(2rem, 5vw, 5rem);
+    align-items: end;
+  }
+}
+
+.section-head--tight {
+  margin-bottom: clamp(1.75rem, 1rem + 2vw, 2.5rem);
+}
+
+.section-head h2 {
+  font-family: var(--serif);
+  font-size: clamp(1.9rem, 1.1rem + 2.6vw, 3.1rem);
+  line-height: 1.06;
+}
+
+/* Supporting sections step down a size so the hero and pipeline stay dominant. */
+.section-head--tight h2 {
+  font-size: clamp(1.6rem, 1.1rem + 1.7vw, 2.35rem);
+}
+
+.section-head p {
+  color: var(--ink-soft);
+  max-width: var(--prose);
+  font-size: 1.0625rem;
+}
+
+.lede {
+  font-size: clamp(1.05rem, 1rem + 0.4vw, 1.25rem);
+  color: var(--ink-soft);
+  max-width: var(--prose);
+}
+
+/* ── Masthead ──────────────────────────────────────────────────────── */
+
+.masthead {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: color-mix(in oklab, var(--paper) 88%, transparent);
+  backdrop-filter: blur(12px) saturate(1.4);
+  border-bottom: 1px solid var(--rule);
+}
+
+.masthead__inner {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  height: 3.75rem;
+}
+
+.wordmark {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap);
+  gap: 0.6rem;
+  font-family: var(--serif);
+  font-size: 1.1rem;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.wordmark svg {
+  display: block;
+  color: var(--verified);
+}
+
+.masthead nav {
+  display: none;
+  margin-inline-start: auto;
+  gap: 1.75rem;
+  font-size: 0.875rem;
+}
+
+@media (min-width: 56rem) {
+  .masthead nav {
+    display: flex;
+  }
+}
+
+.masthead nav a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap);
+  color: var(--ink-soft);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: color var(--duration) var(--ease), border-color var(--duration) var(--ease);
+}
+
+.masthead nav a:hover {
+  color: var(--ink);
+  border-bottom-color: var(--rule-strong);
+}
+
+.masthead .btn {
+  margin-inline-start: auto;
+}
+
+@media (min-width: 56rem) {
+  .masthead .btn {
+    margin-inline-start: 0;
+  }
+}
+
+/* ── Buttons ───────────────────────────────────────────────────────── */
+
+/*
+ * Skip link. Hidden until focused, then it lands as a real, visible control —
+ * a skip link that stays invisible while focused is worse than none.
+ */
+.skip-link {
+  position: absolute;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 100;
+  padding: 0.7rem 1rem;
+  background: var(--ink);
+  color: var(--paper);
+  font-size: 0.875rem;
+  text-decoration: none;
+  border-radius: 2px;
+  transform: translateY(-200%);
+  transition: transform var(--duration) var(--ease);
+}
+
+.skip-link:focus-visible {
+  transform: none;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: var(--tap);
+  padding: 0.6rem 1.1rem;
+  border: 1px solid var(--rule-strong);
+  border-radius: 2px;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.875rem;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background var(--duration) var(--ease), color var(--duration) var(--ease),
+    transform var(--duration) var(--ease);
+}
+
+.btn:hover {
+  background: var(--rule-strong);
+  color: var(--paper);
+  transform: translateY(-1px);
+}
+
+.btn--solid {
+  background: var(--rule-strong);
+  color: var(--paper);
+}
+
+.btn--solid:hover {
+  background: transparent;
+  color: var(--ink);
+}
+
+.btn--ghost {
+  border-color: var(--rule);
+  color: var(--ink-soft);
+}
+
+.btn--ghost:hover {
+  border-color: var(--rule-strong);
+  background: transparent;
+  color: var(--ink);
+}
+
+.btn svg {
+  flex: none;
+}
+
+/* ── Hero ──────────────────────────────────────────────────────────── */
+
+.hero {
+  border-top: 0;
+  padding-block: clamp(3rem, 1.5rem + 7vw, 7rem) var(--step);
+  position: relative;
+}
+
+/* A faint ledger grid behind the hero: paper with ruled lines, not a gradient blob. */
+.hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: linear-gradient(to right, var(--rule-soft) 1px, transparent 1px);
+  background-size: calc(100% / 6) 100%;
+  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.5), transparent 72%);
+  opacity: 0.9;
+}
+
+.hero__inner {
+  position: relative;
+  display: grid;
+  gap: clamp(2.5rem, 1rem + 5vw, 4.5rem);
+}
+
+@media (min-width: 68rem) {
+  .hero__inner {
+    grid-template-columns: minmax(0, 1.08fr) minmax(0, 0.92fr);
+    align-items: start;
+  }
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.3rem 0.65rem;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--pending);
+  background: var(--pending-bg);
+}
+
+.badge__dot {
+  width: 0.4rem;
+  height: 0.4rem;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.hero h1 {
+  margin-top: 1.5rem;
+  font-family: var(--serif);
+  font-size: clamp(2.6rem, 1.1rem + 6.2vw, 5.25rem);
+  line-height: 0.98;
+  letter-spacing: -0.035em;
+}
+
+/* Newsreader's italic is the reason this family was chosen — the emphasis is
+   typographic, and the colour marks it as a verification state, not decoration. */
+.hero h1 em {
+  font-style: italic;
+  font-weight: 500;
+  color: var(--verified);
+}
+
+.hero__lede {
+  margin-top: 1.75rem;
+  max-width: 34rem;
+  font-size: clamp(1.05rem, 1rem + 0.5vw, 1.3rem);
+  color: var(--ink-soft);
+}
+
+.hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 2.25rem;
+}
+
+/* Two-up on phones, four-up from tablet — fixed rather than auto-fit, so a long
+   label can never push the row into an orphaned fourth column. */
+.hero__stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: 3rem;
+  border-top: 1px solid var(--rule-strong);
+}
+
+@media (min-width: 40rem) {
+  .hero__stats {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+/*
+ * Figure above label, reversed in CSS so the DOM keeps dt→dd order for screen
+ * readers. This is what puts every numeral on one baseline: a label that wraps
+ * to two lines now grows downward instead of shoving its figure out of line.
+ */
+.stat {
+  display: flex;
+  flex-direction: column-reverse;
+  justify-content: flex-end;
+  gap: 0.3rem;
+  padding: 1rem 1.1rem 0.5rem 0;
+  border-right: 1px solid var(--rule);
+}
+
+.stat:last-child,
+.stat:nth-child(2n) {
+  border-right: 0;
+}
+
+@media (min-width: 40rem) {
+  .stat:nth-child(2n) {
+    border-right: 1px solid var(--rule);
+  }
+
+  .stat:last-child {
+    border-right: 0;
+  }
+}
+
+.stat dt {
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  line-height: 1.45;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  text-wrap: balance;
+}
+
+.stat dd {
+  margin: 0;
+  font-family: var(--serif);
+  font-size: clamp(1.6rem, 1.1rem + 1.4vw, 2.3rem);
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+/* ── Receipt (the real anchored transaction) ───────────────────────── */
+
+.receipt {
+  position: relative;
+  z-index: 2;
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-top: 2px solid var(--rule-strong);
+}
+
+@media (min-width: 68rem) {
+  .receipt {
+    margin-top: 2.5rem;
+  }
+}
+
+.receipt::after {
+  /* torn-stub edge, drawn not imaged */
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -0.5rem;
+  height: 0.5rem;
+  background: repeating-linear-gradient(
+    -45deg,
+    var(--surface) 0 0.5rem,
+    transparent 0.5rem 1rem
+  );
+  mask-image: linear-gradient(to bottom, #000, transparent);
+}
+
+.receipt__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.9rem 1.25rem;
+  border-bottom: 1px solid var(--rule);
+}
+
+.receipt__title {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.2rem 0.55rem;
+  border-radius: 2px;
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--verified);
+  background: var(--verified-bg);
+}
+
+.chip svg {
+  display: block;
+}
+
+.receipt__row {
+  display: grid;
+  grid-template-columns: 7.5rem minmax(0, 1fr);
+  gap: 0.75rem;
+  align-items: start;
+  padding: 0.7rem 1.25rem;
+  border-bottom: 1px solid var(--rule-soft);
+}
+
+.receipt__row:last-of-type {
+  border-bottom: 0;
+}
+
+.receipt__row dt {
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  padding-top: 0.15rem;
+}
+
+.receipt__row dd {
+  margin: 0;
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  line-height: 1.5;
+  word-break: break-all;
+}
+
+.receipt__row dd.match {
+  color: var(--verified);
+}
+
+.receipt__foot {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 0.9rem 1.25rem;
+  border-top: 1px solid var(--rule);
+  background: var(--paper-deep);
+}
+
+.hairline-note {
+  margin-top: 1.5rem;
+  padding-left: 0.9rem;
+  border-left: 2px solid var(--rule);
+  font-size: 0.8125rem;
+  color: var(--ink-faint);
+  max-width: 34rem;
+}
+
+/* The note sits under the stub as its fine print, clearing the torn edge. */
+.hero__proof .hairline-note {
+  margin-top: 2.25rem;
+}
+
+/* ── Copy button ───────────────────────────────────────────────────── */
+
+/*
+ * Copy controls stay visually small — a chunky button next to a hash would
+ * outweigh the evidence — so the tap area is expanded with a pseudo-element
+ * instead of padding. Visual bounds tight, hit zone 44px.
+ */
+.copy {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.6rem;
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  background: transparent;
+  color: var(--ink-soft);
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: color var(--duration) var(--ease), border-color var(--duration) var(--ease);
+}
+
+.copy::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: var(--tap);
+  transform: translateY(-50%);
+}
+
+.copy:hover {
+  color: var(--ink);
+  border-color: var(--rule-strong);
+}
+
+.copy[data-copied="true"] {
+  color: var(--verified);
+  border-color: var(--verified);
+}
+
+/* ── Threat / why-it-matters band ──────────────────────────────────── */
+
+.band {
+  background: var(--paper-deep);
+}
+
+/* A single statement, set wide. The threat is the one claim on the page that
+   should land without any supporting apparatus around it. */
+.threat {
+  display: grid;
+  gap: clamp(1.5rem, 1rem + 2vw, 2.5rem);
+}
+
+@media (min-width: 62rem) {
+  .threat {
+    grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+    gap: clamp(2rem, 5vw, 5rem);
+    align-items: end;
+  }
+}
+
+.threat blockquote {
+  margin: 0;
+  font-family: var(--serif);
+  font-size: clamp(1.5rem, 1rem + 2vw, 2.4rem);
+  line-height: 1.18;
+  letter-spacing: -0.02em;
+}
+
+.threat blockquote strong {
+  font-weight: 400;
+  color: var(--broken);
+}
+
+/* ── Pipeline ──────────────────────────────────────────────────────── */
+
+.pipeline {
+  display: grid;
+  gap: 2rem;
+}
+
+@media (min-width: 68rem) {
+  .pipeline {
+    grid-template-columns: minmax(0, 20rem) minmax(0, 1fr);
+    gap: clamp(2rem, 4vw, 4rem);
+    align-items: start;
+  }
+}
+
+.steps {
+  display: flex;
+  gap: 0;
+  overflow-x: auto;
+  border-top: 1px solid var(--rule-strong);
+  scrollbar-width: thin;
+}
+
+@media (min-width: 68rem) {
+  .steps {
+    display: block;
+    overflow: visible;
+    position: sticky;
+    top: 5.5rem;
+  }
+}
+
+.step {
+  flex: none;
+  display: block;
+  width: 100%;
+  min-width: 13rem;
+  min-height: var(--tap);
+  padding: 0.95rem 1rem 0.95rem 0;
+  border: 0;
+  border-bottom: 1px solid var(--rule);
+  background: transparent;
+  color: var(--ink-soft);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  position: relative;
+  transition: color var(--duration) var(--ease), padding-left var(--duration) var(--ease);
+}
+
+.step::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: -1px;
+  width: 0;
+  height: 2px;
+  background: var(--verified);
+  transition: width var(--duration) var(--ease);
+}
+
+@media (min-width: 68rem) {
+  .step::before {
+    top: 0;
+    bottom: 0;
+    height: auto;
+    width: 2px;
+    transform: scaleY(0);
+    transform-origin: top;
+    transition: transform var(--duration) var(--ease);
+  }
+}
+
+.step[aria-selected="true"] {
+  color: var(--ink);
+  padding-left: 0.9rem;
+}
+
+.step[aria-selected="true"]::before {
+  width: 100%;
+}
+
+@media (min-width: 68rem) {
+  .step[aria-selected="true"]::before {
+    width: 2px;
+    transform: scaleY(1);
+  }
+}
+
+.step:hover {
+  color: var(--ink);
+}
+
+.step__num {
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.12em;
+  color: var(--ink-faint);
+}
+
+.step__name {
+  display: block;
+  margin-top: 0.2rem;
+  font-family: var(--serif);
+  font-size: 1.25rem;
+  letter-spacing: -0.01em;
+}
+
+.step__where {
+  display: block;
+  margin-top: 0.15rem;
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  color: var(--ink-faint);
+}
+
+.panel {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.panel[hidden] {
+  display: none;
+}
+
+.panel__body p {
+  color: var(--ink-soft);
+  max-width: var(--prose);
+}
+
+.panel__facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 1rem;
+}
+
+.tag {
+  padding: 0.22rem 0.55rem;
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  color: var(--ink-soft);
+  background: var(--surface);
+}
+
+/* ── Terminal / code surface ───────────────────────────────────────── */
+
+.terminal {
+  background: var(--terminal-bg);
+  border: 1px solid var(--terminal-rule);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.terminal__bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.6rem 0.9rem;
+  border-bottom: 1px solid var(--terminal-rule);
+}
+
+.terminal__name {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--terminal-faint);
+}
+
+.terminal__bar .copy {
+  border-color: var(--terminal-rule);
+  color: var(--terminal-faint);
+}
+
+.terminal__bar .copy:hover {
+  color: var(--terminal-ink);
+  border-color: var(--terminal-faint);
+}
+
+.terminal pre {
+  margin: 0;
+  padding: 1.1rem 1.2rem;
+  overflow-x: auto;
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  line-height: 1.7;
+  color: var(--terminal-ink);
+  tab-size: 2;
+}
+
+.terminal .c-key {
+  color: #9fb8ff;
+}
+.terminal .c-str {
+  color: #8fd2ae;
+}
+.terminal .c-num {
+  color: #e5b877;
+}
+.terminal .c-dim {
+  color: var(--terminal-faint);
+}
+.terminal .c-ok {
+  color: #5fd1a3;
+}
+.terminal .c-bad {
+  color: #f08a80;
+}
+.terminal .c-cmd {
+  color: #ecebe8;
+}
+
+/* ── Integrity checks ──────────────────────────────────────────────── */
+
+.checks {
+  display: grid;
+  gap: 0;
+  border-top: 1px solid var(--rule-strong);
+}
+
+@media (min-width: 46rem) {
+  .checks {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: clamp(1.5rem, 4vw, 4rem);
+  }
+}
+
+@media (min-width: 76rem) {
+  .checks {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.check {
+  padding: 1.4rem 0;
+  border-bottom: 1px solid var(--rule);
+}
+
+.check__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.check__name {
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  color: var(--ink);
+}
+
+.check__verdict {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 0.15rem 0.4rem;
+  border-radius: 2px;
+}
+
+.check__verdict[data-v="fail"] {
+  color: var(--broken);
+  background: var(--broken-bg);
+}
+
+.check__verdict[data-v="warn"] {
+  color: var(--pending);
+  background: var(--pending-bg);
+}
+
+.check__defends {
+  margin-top: 0.7rem;
+  font-size: 0.9375rem;
+  color: var(--ink-soft);
+}
+
+.check__defends b {
+  display: block;
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  font-weight: 400;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-bottom: 0.25rem;
+}
+
+/* ── Verify-yourself ───────────────────────────────────────────────── */
+
+.tabs {
+  display: flex;
+  gap: 0.35rem;
+  margin-bottom: 0.9rem;
+  flex-wrap: wrap;
+}
+
+.tab {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap);
+  padding: 0.35rem 0.8rem;
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  background: transparent;
+  color: var(--ink-faint);
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  cursor: pointer;
+  transition: color var(--duration) var(--ease), border-color var(--duration) var(--ease),
+    background var(--duration) var(--ease);
+}
+
+.tab:hover {
+  color: var(--ink);
+}
+
+.tab[aria-selected="true"] {
+  color: var(--ink);
+  border-color: var(--rule-strong);
+  background: var(--surface);
+}
+
+/* ── Architecture diagram ──────────────────────────────────────────── */
+
+.diagram {
+  border: 1px solid var(--rule);
+  background: var(--surface);
+  padding: clamp(1rem, 3vw, 2rem);
+  overflow-x: auto;
+}
+
+.diagram svg {
+  display: block;
+  min-width: 40rem;
+  width: 100%;
+  height: auto;
+  color: var(--ink);
+}
+
+.diagram .d-box {
+  fill: var(--paper);
+  stroke: var(--rule-strong);
+  stroke-width: 1;
+}
+
+.diagram .d-box--chain {
+  fill: var(--verified-bg);
+  stroke: var(--verified);
+}
+
+.diagram .d-title {
+  fill: var(--ink);
+  font-family: var(--sans);
+  font-size: 13px;
+}
+
+.diagram .d-sub {
+  fill: var(--ink-faint);
+  font-family: var(--mono);
+  font-size: 10px;
+}
+
+.diagram .d-edge {
+  stroke: var(--ink-faint);
+  stroke-width: 1;
+  fill: none;
+}
+
+.diagram .d-edge--proof {
+  stroke: var(--verified);
+  stroke-dasharray: 4 3;
+}
+
+/*
+ * Edge labels sit on top of connector lines, so they carry a halo in the
+ * surface colour — drawn stroke-first so the outline stays behind the glyph.
+ * Without it the mono text and the 1px edges shred each other.
+ */
+.diagram .d-label {
+  fill: var(--ink-faint);
+  font-family: var(--mono);
+  font-size: 9.5px;
+  paint-order: stroke fill;
+  stroke: var(--surface);
+  stroke-width: 3.5px;
+  stroke-linejoin: round;
+}
+
+/* ── Scope ledger ──────────────────────────────────────────────────── */
+
+.scope {
+  display: grid;
+  gap: clamp(2rem, 1rem + 3vw, 4rem);
+}
+
+@media (min-width: 56rem) {
+  .scope {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.scope__col h3 {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--rule-strong);
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.scope__col ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.scope__col li {
+  display: grid;
+  grid-template-columns: 1.4rem minmax(0, 1fr);
+  gap: 0.6rem;
+  padding: 0.85rem 0;
+  border-bottom: 1px solid var(--rule);
+  font-size: 0.9375rem;
+}
+
+.scope__col li span {
+  font-family: var(--mono);
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+.scope--in li span {
+  color: var(--verified);
+}
+
+.scope--out li span {
+  color: var(--ink-faint);
+}
+
+.scope--out li {
+  color: var(--ink-soft);
+}
+
+.scope__col li b {
+  font-weight: 400;
+  color: var(--ink);
+}
+
+.scope__col li i {
+  display: block;
+  font-style: normal;
+  color: var(--ink-faint);
+  font-size: 0.875rem;
+}
+
+/* ── Closing call ──────────────────────────────────────────────────── */
+
+.closing {
+  border-top: 1px solid var(--rule-strong);
+  text-align: left;
+}
+
+.closing h2 {
+  font-family: var(--serif);
+  font-size: clamp(2rem, 1.1rem + 4vw, 4rem);
+  line-height: 1.02;
+  max-width: 20ch;
+}
+
+.closing .hero__actions {
+  margin-top: 2rem;
+}
+
+/* ── Footer ────────────────────────────────────────────────────────── */
+
+footer {
+  border-top: 1px solid var(--rule);
+  padding-block: 2.5rem 3rem;
+  background: var(--paper-deep);
+}
+
+.footer__grid {
+  display: grid;
+  gap: 2rem;
+}
+
+@media (min-width: 56rem) {
+  .footer__grid {
+    grid-template-columns: minmax(0, 1.4fr) repeat(3, minmax(0, 1fr));
+  }
+}
+
+.footer__grid h4 {
+  margin: 0 0 0.85rem;
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  font-weight: 400;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.footer__grid ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  font-size: 0.875rem;
+}
+
+.footer__grid li {
+  display: flex;
+  align-items: center;
+  min-height: 2.25rem;
+  color: var(--ink-soft);
+}
+
+/* Footer links fill their row so the tap area matches the visible line rather
+   than the glyph bounds. */
+.footer__grid a {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-height: var(--tap);
+  color: var(--ink-soft);
+  text-decoration: none;
+}
+
+.footer__grid a:hover {
+  color: var(--ink);
+  text-decoration: underline;
+}
+
+.footer__note {
+  margin-top: 2.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--rule);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.5rem;
+  justify-content: space-between;
+  font-size: 0.8125rem;
+  color: var(--ink-faint);
+}
+
+/* ── Reveal motion ─────────────────────────────────────────────────── */
+
+/*
+ * One orchestrated page load rather than scattered micro-animations: the hero
+ * assembles top-down like a document being set, then the page stays still.
+ * Transform and opacity only — nothing here can trigger layout.
+ */
+@keyframes lift {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+[data-lift] {
+  opacity: 0;
+  animation: lift 700ms var(--ease) both;
+  animation-delay: calc(var(--lift-order, 0) * 90ms + 60ms);
+}
+
+.reveal {
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity 620ms var(--ease), transform 620ms var(--ease);
+}
+
+.reveal.is-in {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .reveal {
+    opacity: 1;
+    transform: none;
+  }
+
+  [data-lift] {
+    opacity: 1;
+    animation: none;
+  }
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}

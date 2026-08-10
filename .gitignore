@@ -1,0 +1,14 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# Editors
+.vscode/
+.idea/
+*.swp
+
+# Nothing is built or installed for this project — it is plain HTML, CSS and JS.
+# These are here only to catch tooling that may be added later.
+node_modules/
+dist/
+.cache/
