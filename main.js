@@ -231,6 +231,46 @@ const CHAIN = [
   },
 ];
 
+/*
+ * The five-part summary bar, taken from the reference's structure.
+ *
+ * It earns its place by answering the one question the hero cannot: what is
+ * this thing, in five words or fewer, before I commit to reading a screen of
+ * argument. The reference put it directly under the hero and that placement is
+ * right — it is a table of contents, not a feature list.
+ *
+ * Icons are drawn here rather than pulled from a set: the page uses one stroke
+ * weight and square caps throughout, and no icon library matches that without
+ * being overridden into it anyway.
+ */
+const SUMMARY = [
+  {
+    title: 'Signed at the scale',
+    note: 'ed25519 on the device; we never hold the key',
+    icon: '<path d="M12 3 4 6.4v5.1c0 4.4 3.4 8 8 9.5 4.6-1.5 8-5.1 8-9.5V6.4Z"/><path d="M8.6 12.2 11 14.6l4.6-4.8"/>',
+  },
+  {
+    title: 'Checked at ingest',
+    note: 'seven integrity checks, quarantine on failure',
+    icon: '<path d="M4 5h16v14H4z"/><path d="M7.6 9.4h5.4M7.6 12.8h8.8M7.6 16.2h4"/>',
+  },
+  {
+    title: 'Sealed in a Merkle tree',
+    note: 'membership and order frozen at seal time',
+    icon: '<path d="M12 3.6v4M6 12.4v3.8M18 12.4v3.8M6 12.4h12"/><path d="M9.6 7.6h4.8v4.8H9.6zM3.6 16.2h4.8V21H3.6zM15.6 16.2h4.8V21h-4.8z"/>',
+  },
+  {
+    title: 'Anchored on Stellar',
+    note: 'confirmed back off the ledger before recording',
+    icon: '<path d="M4.6 9.6 12 5.4l7.4 4.2v4.8L12 18.6l-7.4-4.2Z"/><path d="M12 10.2v4.2"/>',
+  },
+  {
+    title: 'Checkable by anyone',
+    note: 'public report, no account, no rate limit',
+    icon: '<circle cx="11" cy="11" r="6.4"/><path d="M15.8 15.8 20.4 20.4"/>',
+  },
+];
+
 const COMMANDS = [
   {
     label: '1 · download',
@@ -377,6 +417,25 @@ function renderPipeline() {
     stepsHost.setAttribute('aria-orientation', wide.matches ? 'vertical' : 'horizontal');
   setOrientation();
   wide.addEventListener('change', setOrientation);
+}
+
+function renderSummary() {
+  const host = document.querySelector('[data-summary]');
+  if (!host) return;
+
+  SUMMARY.forEach((item) => {
+    host.append(
+      el(`
+        <li class="summary__item">
+          <svg class="summary__icon" width="22" height="22" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="1.5" stroke-linecap="square"
+               stroke-linejoin="miter" aria-hidden="true">${item.icon}</svg>
+          <p class="summary__title">${item.title}</p>
+          <p class="summary__note">${item.note}</p>
+        </li>
+      `),
+    );
+  });
 }
 
 /*
@@ -695,6 +754,7 @@ function wireNavHighlight() {
   sections.forEach((section) => observer.observe(section));
 }
 
+renderSummary();
 renderChain();
 renderPipeline();
 renderChecks();
