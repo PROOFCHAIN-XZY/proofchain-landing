@@ -879,6 +879,94 @@ section {
   color: var(--broken);
 }
 
+/* ── Chain of custody ──────────────────────────────────────────────── */
+
+/*
+ * The reference this was adapted from floats glass cards over a photograph and
+ * joins them with glowing lines. The idea survives the translation; the finish
+ * does not. Here the cards are ruled panels on paper, the connectors are
+ * hairlines with the operation named on them, and the only colour is the
+ * verified green on the value that reached the ledger.
+ */
+.chain {
+  display: grid;
+  gap: 0;
+  margin: 0 0 clamp(3rem, 2rem + 4vw, 5rem);
+  padding: 0;
+  list-style: none;
+  counter-reset: chain;
+}
+
+.chain__node {
+  display: grid;
+  gap: 0;
+}
+
+.chain__card {
+  height: 100%;
+  padding: 1.25rem 1.25rem 1.35rem;
+  border: 1px solid var(--rule);
+  background: var(--surface);
+}
+
+.chain__step {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  font-family: var(--serif);
+  font-size: 1.0625rem;
+  color: var(--ink);
+}
+
+.chain__num {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.14em;
+  color: var(--ink-faint);
+}
+
+.chain__where {
+  width: 100%;
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.chain__label {
+  margin-top: 1.1rem;
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+/* The committed value is the point of each card, so it takes the largest
+   setting in the panel and the tabular figures the rest of the page uses. */
+.chain__value {
+  display: block;
+  margin-top: 0.3rem;
+  font-family: var(--mono);
+  font-size: 1rem;
+  color: var(--ink);
+  word-break: break-all;
+}
+
+a.chain__value {
+  color: var(--verified);
+  text-decoration-color: color-mix(in oklab, var(--verified) 45%, transparent);
+}
+
+.chain__note {
+  margin-top: 0.7rem;
+  font-size: 0.875rem;
+  line-height: 1.45;
+  color: var(--ink-soft);
+}
+
 /* ── Pipeline ──────────────────────────────────────────────────────── */
 
 .pipeline {
