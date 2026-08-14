@@ -322,7 +322,9 @@ section {
   display: flex;
   align-items: center;
   gap: 1.5rem;
-  height: 3.75rem;
+  /* min-height, not height: the nav wraps to its own row on narrow screens and
+     a fixed height sent it straight through the top of the hero. */
+  min-height: 3.75rem;
 }
 
 .wordmark {
@@ -403,6 +405,21 @@ section {
   align-items: center;
   gap: 0.5rem;
   margin-inline-start: auto;
+}
+
+/*
+ * The masthead call to action is dropped below 56rem. The wordmark and three
+ * controls do not fit across 375px, and forcing them to wrap put a second row
+ * of chrome on top of a page that is already sticky-heavy on a phone.
+ *
+ * Nothing is lost: the same link is the hero's primary button immediately
+ * below, the closing section repeats it, and the chain's transaction now links
+ * to the same explorer page. It is the fourth copy that goes, not the only one.
+ */
+@media (max-width: 55.999rem) {
+  .masthead__actions .btn {
+    display: none;
+  }
 }
 
 @media (min-width: 56rem) {
