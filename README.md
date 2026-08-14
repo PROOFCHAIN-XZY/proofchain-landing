@@ -5,13 +5,30 @@ a verified waste-to-credit platform on Stellar.
 
 **Live:** https://proofchain-xzy.github.io/proofchain-landing/
 
-No build step, no dependencies, no framework — three files and a licence.
+No build step, no dependencies, no framework. The published site is still three
+files and a licence; everything else is scaffolding that never ships.
 
 ```
 .
-├── index.html   # structure and copy
-├── styles.css   # design tokens + all styling
-└── main.js      # pipeline stepper, command tabs, copy buttons, reveals
+├── index.html          # structure and copy
+├── styles.css          # design tokens + all styling
+├── main.js             # pipeline stepper, command tabs, copy buttons, reveals
+├── 404.html            # served by Pages for any missing address
+├── robots.txt          # allows everything; advertises the sitemap
+├── sitemap.xml         # one entry, carrying lastmod
+├── site.webmanifest    # icons and identity for home-screen installs
+├── assets/             # generated — social card and app icons
+├── scripts/            # generate assets/; not part of the site
+└── tests/              # Playwright; own package.json, not part of the site
+```
+
+`assets/` is committed but generated. Re-render it after any change to the
+anchor receipt or the palette:
+
+```bash
+python3 -m pip install pillow
+python3 scripts/build-og.py        # assets/og.png, the 1200x630 share card
+python3 scripts/build-icons.py     # app and apple-touch icons
 ```
 
 ## Run it locally
@@ -84,28 +101,76 @@ the hero, and the closing section.
 ## Facts on the page
 
 The anchor receipt in the hero is a real testnet run, not a mockup — transaction
-`3fb0f496…dc512f`, ledger 4033690, 100 stroops. If the pilot is re-anchored,
-update the hash everywhere it appears:
+`3fb0f496…dc512f`, ledger 4033690, 100 stroops. If the pilot is re-anchored, the
+hash has to change in `index.html`, `main.js` and `scripts/build-og.py`, and
+`assets/og.png` has to be re-rendered.
+
+You no longer have to remember that. `consistency.spec.js` fails if any
+64-character hash other than the live one survives anywhere in the source, so a
+half-finished re-anchor cannot ship.
 
 ```bash
-grep -rn 3fb0f496 index.html main.js     # 8 occurrences
+grep -rn 3fb0f496 index.html main.js scripts/build-og.py
 ```
 
-Confirm the other hard numbers against the repo before this goes public — the
-7 checks, 46 trust-kernel tests, and the $140–800/tonne figure. The page's whole
-argument is that it does not overstate, so a stale number costs more here than
-it would elsewhere.
+The other hard numbers were checked against
+[PROOFCHAIN-XZY/proofchain](https://github.com/PROOFCHAIN-XZY/proofchain) and
+hold:
+
+| Claim | Source | Status |
+|-------|--------|--------|
+| 7 integrity checks | `apps/backend/src/events/integrity.ts` | ✓ all seven names match, and the order on the page matches the order they run in |
+| 46 trust-kernel tests | `packages/shared` | ✓ |
+| $140–800 per tonne | upstream `README.md` | ✓ |
+
+One correction came out of that pass: `clock_plausible` was badged **warn**,
+but the implementation returns a hard **fail** for an unparseable or
+future-dated `capturedAt`. It now shows both. The page's whole argument is that
+it does not overstate — understating a check is the same failure wearing a
+modest hat.
+
+The check names are pinned by `consistency.spec.js`, so a rename upstream
+becomes a failing test here rather than a page quietly describing a system that
+no longer exists.
 
 ## Verified
 
-Checked with Playwright at 375 / 768 / 1440 px in both colour schemes:
+The claims below are not asserted, they are tested. `tests/` holds a Playwright
+suite that runs on every push and pull request, and Pages only deploys if it
+passes.
 
-- No horizontal overflow at any breakpoint
-- All body and label text passes WCAG AA contrast in light **and** dark
-- All interactive targets ≥ 44 px
-- No console errors
-- `prefers-reduced-motion` suppresses all motion with no content left hidden
+```bash
+cd tests
+npm install
+npx playwright install chromium
+npx playwright test              # 100 checks, ~20s
+```
 
-Re-run those checks after any significant change; the two greys `--ink-faint`
-and `--terminal-faint` are tuned to sit just above the AA threshold and are the
-first things to break if the palette is nudged.
+The suite has its own `package.json` so the published site stays
+dependency-free, and it serves the parent directory with the same
+`python3 -m http.server` command documented above — so it exercises the setup
+a reader is told to use, not a private one.
+
+Five projects cover 375 / 768 / 1440 px against the layout breakpoints in
+`styles.css`, with dark as a separate project because the palette is redefined
+wholesale under `prefers-color-scheme`. What is pinned:
+
+| Check | Where |
+|-------|-------|
+| No horizontal overflow, at the document *and* the element level | `responsive.spec.js` |
+| Every interactive target reachable across 44 px, hit-tested not measured | `responsive.spec.js` |
+| All text passes WCAG AA in light **and** dark — 225 nodes per project | `a11y.spec.js` |
+| Tablist keyboard semantics, and the orientation the stepper reports | `a11y.spec.js` |
+| `prefers-reduced-motion` leaves no content stuck at `opacity: 0` | `a11y.spec.js` |
+| No console errors; all six/seven/four sections actually render | `render.spec.js` |
+| One transaction hash across every file that cites one | `consistency.spec.js` |
+| No URL outside the canonical host; every referenced asset exists | `consistency.spec.js` |
+| The seven check names still match `events/integrity.ts` upstream | `consistency.spec.js` |
+
+The two greys `--ink-faint` and `--terminal-faint` are tuned to sit just above
+the AA threshold and are the first things to break if the palette is nudged.
+The contrast test is what will tell you.
+
+Two caveats on what the suite does *not* cover. It runs Chromium only —
+cross-browser rendering is still a manual check. And it asserts no screenshots,
+so a layout can regress into something ugly while remaining correct.
