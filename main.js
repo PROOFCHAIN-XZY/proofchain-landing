@@ -395,7 +395,10 @@ function wireTablist(host, selector) {
       const on = tab === next;
       tab.setAttribute('aria-selected', String(on));
       tab.tabIndex = on ? 0 : -1;
-      document.getElementById(tab.getAttribute('aria-controls')).hidden = !on;
+      // A tab whose panel is missing would otherwise throw here and abort the
+      // loop, leaving every remaining tab stuck in its previous state.
+      const panel = document.getElementById(tab.getAttribute('aria-controls'));
+      if (panel) panel.hidden = !on;
     });
   };
 
