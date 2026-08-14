@@ -80,9 +80,12 @@ jobs:
 
       # The site is the repository root. Nothing is compiled, so the artifact
       # is the working tree minus the things that are not part of the site.
+      # consistency.spec.js pins this list against the repo root, so a new
+      # directory that should not be published fails the test rather than
+      # quietly shipping.
       - name: Stage the site
         run: |
-          rm -rf tests scripts .github .cache
+          rm -rf tests scripts docs .github .cache
           touch .nojekyll
 
       - uses: actions/upload-pages-artifact@v3

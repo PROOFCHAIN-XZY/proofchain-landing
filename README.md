@@ -18,6 +18,7 @@ files and a licence; everything else is scaffolding that never ships.
 ├── sitemap.xml         # one entry, carrying lastmod
 ├── site.webmanifest    # icons and identity for home-screen installs
 ├── assets/             # generated — social card and app icons
+├── docs/               # design-reference.md; not part of the site
 ├── scripts/            # generate assets/; not part of the site
 └── tests/              # Playwright; own package.json, not part of the site
 ```
@@ -60,22 +61,36 @@ Type is a motivated triple stack rather than a UI default:
 
 All three fall back to system stacks, so the page still reads correctly offline.
 
+Light is the default and dark is a peer, not an afterthought — both palettes are
+declared in full and the masthead carries a switch. A reader who has expressed
+no preference follows the system; once they choose, the choice persists and a
+later system change no longer overrides it. See
+[docs/design-reference.md](docs/design-reference.md) for why dark became
+switchable rather than inherited.
+
 ## Structure
 
-Five sections, deliberately unequal in weight — uniform section heights are what
-make a page read as documentation rather than a landing page:
+Deliberately unequal in weight — uniform section heights are what make a page
+read as documentation rather than a landing page:
 
 | Section | Weight | Role |
 |---------|--------|------|
 | Hero + anchor receipt | 1.0 screen | The claim and the evidence for it, together |
+| Summary bar | 0.2 | Five claims; a table of contents for the argument |
 | The problem | 0.4 | One statement: the incentive to cheat |
-| Pipeline | 1.2 | The centrepiece — weigh-in to audit report |
+| Chain of custody | 0.4 | The whole argument as one picture, before it is taken apart |
+| Pipeline | 1.2 | Weigh-in to audit report, stage by stage |
 | Integrity v1 | 0.8 | Seven checks, one line each |
 | Verify it yourself | 1.0 | The differentiator: run it on your own machine |
 | Scope | 0.8 | What this release does *not* prove |
 | Closing + footer | 1.0 | Single CTA |
 
-Total ≈ 6.3 screens at 1440×900.
+Total ≈ 7 screens at 1440×900.
+
+The summary bar and the chain of custody were adapted from a supplied design
+reference. [docs/design-reference.md](docs/design-reference.md) records what
+was taken from it, what was refused, and why — including the parts that would
+have cost the page its documentary direction.
 
 Deliberately **not** on the page, because the repo documents them better:
 
@@ -88,6 +103,8 @@ Deliberately **not** on the page, because the repo documents them better:
 Copy for the three data-driven sections lives at the top of `main.js`, not in
 the markup:
 
+- `CHAIN` — the four states of the chain of custody and the operation joining each
+- `SUMMARY` — the five claims in the bar under the hero, with their inline icons
 - `PIPELINE` — the six capture-to-report stages and their sample records
 - `CHECKS` — the seven integrity v1 checks and what each defends against
 - `COMMANDS` — the four verification commands in the "Don't trust us" section
@@ -95,8 +112,10 @@ the markup:
 Everything else is authored directly in `index.html`.
 
 The single call to action — "Verify a sample batch" — points at the live
-testnet transaction on stellar.expert. It appears in three places: the masthead,
-the hero, and the closing section.
+testnet transaction on stellar.expert. It appears in the masthead, the hero and
+the closing section, and the chain's final state links to the same explorer
+page. The masthead copy is hidden below 56rem, where the wordmark and controls
+already fill the bar; the other three are always present.
 
 ## Facts on the page
 
@@ -143,7 +162,7 @@ passes.
 cd tests
 npm install
 npx playwright install chromium
-npx playwright test              # 100 checks, ~20s
+npx playwright test              # 170 checks, ~35s
 ```
 
 The suite has its own `package.json` so the published site stays
@@ -163,6 +182,8 @@ wholesale under `prefers-color-scheme`. What is pinned:
 | Tablist keyboard semantics, and the orientation the stepper reports | `a11y.spec.js` |
 | `prefers-reduced-motion` leaves no content stuck at `opacity: 0` | `a11y.spec.js` |
 | No console errors; all six/seven/four sections actually render | `render.spec.js` |
+| The chain, the summary bar and a nav that works on phones | `reference.spec.js` |
+| The theme switch, and the two dark token blocks staying in sync | `theme.spec.js` |
 | One transaction hash across every file that cites one | `consistency.spec.js` |
 | No URL outside the canonical host; every referenced asset exists | `consistency.spec.js` |
 | The seven check names still match `events/integrity.ts` upstream | `consistency.spec.js` |

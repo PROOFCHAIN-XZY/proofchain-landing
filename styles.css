@@ -16,6 +16,8 @@
  */
 
 :root {
+  color-scheme: light;
+
   --paper: #fbfaf7;
   --paper-deep: #f3f1ea;
   --surface: #ffffff;
@@ -60,16 +62,31 @@
   --ease: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+/*
+ * Dark palette, declared twice on purpose.
+ *
+ * The first block answers the system preference. The second answers an
+ * explicit choice from the theme control, which has to win even in a browser
+ * set to light — a rule nested inside the media query cannot do that, and the
+ * [data-theme] hook that was already in this file could not actually turn the
+ * page dark for exactly that reason.
+ *
+ * CSS has no way to share one declaration list between a media rule and a
+ * plain selector, so the two lists are duplicated. They must stay identical:
+ * theme.spec.js parses this file and fails if the token sets diverge.
+ */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --paper: #101113;
-    --paper-deep: #0a0b0c;
-    --surface: #17181b;
+    color-scheme: dark;
+
+    --paper: #0d1117;
+    --paper-deep: #080b0f;
+    --surface: #141a21;
     --ink: #ecebe8;
     --ink-soft: #a4a8b0;
     --ink-faint: #878b93;
-    --rule: #2b2d31;
-    --rule-soft: #212327;
+    --rule: #29313a;
+    --rule-soft: #1e252d;
     --rule-strong: #ecebe8;
 
     --verified: #5fd1a3;
@@ -80,11 +97,38 @@
     --broken-bg: #2e1614;
     --accent: #8fb0ff;
 
-    --terminal-bg: #0a0b0c;
+    --terminal-bg: #080b0f;
     --terminal-ink: #dcdad4;
     --terminal-faint: #82868e;
-    --terminal-rule: #24262a;
+    --terminal-rule: #222932;
   }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --paper: #0d1117;
+  --paper-deep: #080b0f;
+  --surface: #141a21;
+  --ink: #ecebe8;
+  --ink-soft: #a4a8b0;
+  --ink-faint: #878b93;
+  --rule: #29313a;
+  --rule-soft: #1e252d;
+  --rule-strong: #ecebe8;
+
+  --verified: #5fd1a3;
+  --verified-bg: #12291f;
+  --pending: #e0a951;
+  --pending-bg: #2b2110;
+  --broken: #f08a80;
+  --broken-bg: #2e1614;
+  --accent: #8fb0ff;
+
+  --terminal-bg: #080b0f;
+  --terminal-ink: #dcdad4;
+  --terminal-faint: #82868e;
+  --terminal-rule: #222932;
 }
 
 *,
@@ -272,7 +316,9 @@ section {
   display: flex;
   align-items: center;
   gap: 1.5rem;
-  height: 3.75rem;
+  /* min-height, not height: the nav wraps to its own row on narrow screens and
+     a fixed height sent it straight through the top of the hero. */
+  min-height: 3.75rem;
 }
 
 .wordmark {
@@ -293,16 +339,42 @@ section {
   color: var(--verified);
 }
 
+/*
+ * Navigation was display:none below 56rem, so a phone got no section links at
+ * all — the four sections were reachable only by scrolling past them.
+ *
+ * The base state is now a visible wrapped row, which is what a reader without
+ * JavaScript keeps. The collapse into a menu button is layered on top of that
+ * by main.js, so the enhancement can only ever add capability.
+ */
+.masthead__inner {
+  flex-wrap: wrap;
+  row-gap: 0;
+}
+
 .masthead nav {
-  display: none;
-  margin-inline-start: auto;
-  gap: 1.75rem;
+  display: flex;
+  flex-wrap: wrap;
+  order: 3;
+  width: 100%;
+  gap: 0 1.25rem;
+  padding-block: 0.25rem 0.6rem;
+  border-top: 1px solid var(--rule-soft);
   font-size: 0.875rem;
 }
 
 @media (min-width: 56rem) {
+  .masthead__inner {
+    flex-wrap: nowrap;
+  }
+
   .masthead nav {
-    display: flex;
+    order: 0;
+    width: auto;
+    margin-inline-start: auto;
+    gap: 1.75rem;
+    padding-block: 0;
+    border-top: 0;
   }
 }
 
@@ -322,13 +394,125 @@ section {
   border-bottom-color: var(--rule-strong);
 }
 
-.masthead .btn {
+.masthead__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
   margin-inline-start: auto;
 }
 
+/*
+ * The masthead call to action is dropped below 56rem. The wordmark and three
+ * controls do not fit across 375px, and forcing them to wrap put a second row
+ * of chrome on top of a page that is already sticky-heavy on a phone.
+ *
+ * Nothing is lost: the same link is the hero's primary button immediately
+ * below, the closing section repeats it, and the chain's transaction now links
+ * to the same explorer page. It is the fourth copy that goes, not the only one.
+ */
+@media (max-width: 55.999rem) {
+  .masthead__actions .btn {
+    display: none;
+  }
+}
+
 @media (min-width: 56rem) {
-  .masthead .btn {
+  .masthead__actions {
     margin-inline-start: 0;
+  }
+}
+
+/* ── Menu toggle ───────────────────────────────────────────────────── */
+
+/*
+ * Only exists once JavaScript has marked the masthead enhanced, and only below
+ * the breakpoint where the nav sits inline. Anywhere else it would be a button
+ * that controls nothing.
+ */
+.menu-toggle {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: var(--tap);
+  height: var(--tap);
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 2px;
+  background: transparent;
+  color: var(--ink-soft);
+  cursor: pointer;
+  transition: color var(--duration) var(--ease), border-color var(--duration) var(--ease);
+}
+
+.menu-toggle:hover {
+  color: var(--ink);
+  border-color: var(--rule);
+}
+
+@media (max-width: 55.999rem) {
+  .masthead[data-enhanced] .menu-toggle {
+    display: inline-flex;
+  }
+
+  /* Collapsed by default once enhanced; the button is the only way back. */
+  .masthead[data-enhanced] nav {
+    display: none;
+  }
+
+  .masthead[data-enhanced][data-menu-open] nav {
+    display: flex;
+  }
+}
+
+/* ── Theme toggle ──────────────────────────────────────────────────── */
+
+/*
+ * Icon-only, because the masthead already carries a wordmark, four links and
+ * a call to action, and a fifth labelled control would flatten that hierarchy.
+ * The accessible name is a visually hidden span rather than aria-label, so it
+ * is translated by page-translation tools along with everything else.
+ */
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--tap);
+  height: var(--tap);
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 2px;
+  background: transparent;
+  color: var(--ink-soft);
+  cursor: pointer;
+  transition: color var(--duration) var(--ease), border-color var(--duration) var(--ease);
+}
+
+.theme-toggle:hover {
+  color: var(--ink);
+  border-color: var(--rule);
+}
+
+/* Exactly one icon shows: the one for the theme the button switches *to*, so
+   the control depicts its result rather than the current state. */
+.theme-toggle__moon {
+  display: none;
+}
+
+:root[data-theme="dark"] .theme-toggle__sun {
+  display: none;
+}
+
+:root[data-theme="dark"] .theme-toggle__moon {
+  display: inline;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .theme-toggle__sun {
+    display: none;
+  }
+
+  :root:not([data-theme="light"]) .theme-toggle__moon {
+    display: inline;
   }
 }
 
@@ -507,6 +691,45 @@ section {
   flex-wrap: wrap;
   gap: 0.75rem;
   margin-top: 2.25rem;
+}
+
+/*
+ * "Built on Stellar", set typographically. The reference pairs the phrase with
+ * a Stellar wordmark; this repository holds no licensed brand asset, and a
+ * redrawn approximation is trademark misuse dressed up as polish. The network
+ * facts beside the name do more work than a logo would in any case.
+ */
+.built {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.4rem 0.6rem;
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--rule-soft);
+  max-width: var(--prose);
+}
+
+.built__label {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.built__name {
+  font-family: var(--serif);
+  font-size: 1.0625rem;
+  color: var(--ink);
+  text-decoration-color: var(--rule);
+}
+
+.built__detail {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.04em;
+  color: var(--ink-faint);
 }
 
 /* Two-up on phones, four-up from tablet — fixed rather than auto-fit, so a long
@@ -695,6 +918,32 @@ section {
   margin-top: 2.25rem;
 }
 
+/* ── Inline links that must still be thumb-sized ───────────────────── */
+
+/*
+ * The same trick .copy uses below: keep the visual bounds tight — a padded
+ * chip around a hash or a brand name would outweigh what it labels — and
+ * expand only the hit zone with a pseudo-element.
+ *
+ * Both of these were caught by the tap-target test rather than by eye, which
+ * is the point of hit-testing that requirement instead of measuring it.
+ */
+.built__name,
+a.chain__value {
+  position: relative;
+}
+
+.built__name::after,
+a.chain__value::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: var(--tap);
+  transform: translateY(-50%);
+}
+
 /* ── Copy button ───────────────────────────────────────────────────── */
 
 /*
@@ -772,6 +1021,270 @@ section {
 .threat blockquote strong {
   font-weight: 400;
   color: var(--broken);
+}
+
+/* ── Summary bar ───────────────────────────────────────────────────── */
+
+/*
+ * The reference enclosed this strip in a rounded translucent panel with a
+ * glowing border. Here it is a ruled band — the five items are separated by
+ * hairlines rather than boxed, so the strip reads as one continuous statement
+ * broken into five parts rather than five cards that happen to be adjacent.
+ */
+.summary {
+  padding-block: clamp(1.75rem, 1rem + 2.5vw, 2.75rem);
+  background: var(--paper-deep);
+}
+
+.summary__grid {
+  display: grid;
+  gap: 1.5rem 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media (min-width: 40rem) {
+  .summary__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 62rem) {
+  .summary__grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 0;
+  }
+
+  /*
+   * "Sealed in a Merkle tree" is the one title that wraps to two lines, which
+   * pushed its note a line below every other note and broke the horizontal
+   * reading of the band. Subgrid gives all five items the same three rows —
+   * icon, title, note — so the notes share a baseline however the titles wrap.
+   *
+   * Guarded: without subgrid the items keep their natural flow, which is the
+   * slightly ragged version this replaces, not a broken one.
+   */
+  @supports (grid-template-rows: subgrid) {
+    .summary__grid {
+      grid-template-rows: auto auto auto;
+    }
+
+    .summary__item {
+      display: grid;
+      grid-row: span 3;
+      grid-template-rows: subgrid;
+      align-content: start;
+    }
+  }
+
+  /* Rules between, not around. The first item has no leading rule, so the
+     band opens flush with the page gutter. */
+  .summary__item + .summary__item {
+    border-inline-start: 1px solid var(--rule);
+    padding-inline-start: clamp(1rem, 2vw, 1.75rem);
+  }
+
+  .summary__item:not(:last-child) {
+    padding-inline-end: clamp(1rem, 2vw, 1.75rem);
+  }
+}
+
+.summary__icon {
+  display: block;
+  color: var(--verified);
+}
+
+.summary__title {
+  margin-top: 0.7rem;
+  font-size: 0.9375rem;
+  color: var(--ink);
+}
+
+.summary__note {
+  margin-top: 0.2rem;
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  color: var(--ink-soft);
+}
+
+/* ── Chain of custody ──────────────────────────────────────────────── */
+
+/*
+ * The reference this was adapted from floats glass cards over a photograph and
+ * joins them with glowing lines. The idea survives the translation; the finish
+ * does not. Here the cards are ruled panels on paper, the connectors are
+ * hairlines with the operation named on them, and the only colour is the
+ * verified green on the value that reached the ledger.
+ */
+.chain {
+  display: grid;
+  gap: 0;
+  margin: 0 0 clamp(3rem, 2rem + 4vw, 5rem);
+  padding: 0;
+  list-style: none;
+  counter-reset: chain;
+}
+
+.chain__node {
+  display: grid;
+  gap: 0;
+}
+
+.chain__card {
+  height: 100%;
+  padding: 1.25rem 1.25rem 1.35rem;
+  border: 1px solid var(--rule);
+  background: var(--surface);
+}
+
+.chain__step {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  font-family: var(--serif);
+  font-size: 1.0625rem;
+  color: var(--ink);
+}
+
+.chain__num {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.14em;
+  color: var(--ink-faint);
+}
+
+.chain__where {
+  width: 100%;
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.chain__label {
+  margin-top: 1.1rem;
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+/* The committed value is the point of each card, so it takes the largest
+   setting in the panel and the tabular figures the rest of the page uses. */
+.chain__value {
+  display: block;
+  margin-top: 0.3rem;
+  font-family: var(--mono);
+  font-size: 1rem;
+  color: var(--ink);
+  word-break: break-all;
+}
+
+a.chain__value {
+  color: var(--verified);
+  text-decoration-color: color-mix(in oklab, var(--verified) 45%, transparent);
+}
+
+.chain__note {
+  margin-top: 0.7rem;
+  font-size: 0.875rem;
+  line-height: 1.45;
+  color: var(--ink-soft);
+}
+
+/*
+ * The connector carries the name of the operation that moves one state to the
+ * next — submitted, batched, anchored. Four cards in a row are four facts;
+ * four cards joined by a named operation are an argument, and the naming is
+ * what stops a reader assuming the states are merely adjacent in time.
+ *
+ * Drawn with a pseudo-element rule behind centred text on the surface colour,
+ * so the line appears to pass under the label rather than collide with it.
+ */
+.chain__link {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-block: 0.85rem;
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+/*
+ * Physical properties, not logical ones. The desktop rule below puts the label
+ * in vertical writing mode, and logical insets follow writing mode — so
+ * inset-inline there would mean top and bottom, and the connector would draw
+ * across the wrong axis.
+ */
+.chain__link::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 1px;
+  transform: translateX(-50%);
+  background: var(--rule);
+}
+
+.chain__link span {
+  position: relative;
+  padding: 0.2rem 0.5rem;
+  background: var(--paper);
+}
+
+/*
+ * Below 62rem the chain runs top to bottom: four panels side by side on a
+ * phone would each be about 80px wide, and a Merkle root does not fit in 80px.
+ * The vertical form is not a degraded fallback — a chain of custody reads
+ * perfectly well as a column, which is why there is no horizontal scroller
+ * here the way there is on the stepper.
+ */
+@media (min-width: 62rem) {
+  .chain {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .chain__node {
+    /* The card takes the full row; the connector sits beside it, spanning the
+       gap to the next column. Laying it out this way rather than with a border
+       keeps the label centred on the join at every column width. */
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: stretch;
+  }
+
+  .chain__node--final {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .chain__link {
+    /* Vertical only on the label, so the connector below keeps a horizontal
+       writing mode and its physical insets stay physical. */
+    padding: 0 0.85rem;
+  }
+
+  .chain__link::before {
+    top: 50%;
+    bottom: auto;
+    left: 0;
+    right: 0;
+    width: auto;
+    height: 1px;
+    transform: translateY(-50%);
+  }
+
+  .chain__link span {
+    writing-mode: vertical-rl;
+    padding: 0.5rem 0.15rem;
+  }
 }
 
 /* ── Pipeline ──────────────────────────────────────────────────────── */

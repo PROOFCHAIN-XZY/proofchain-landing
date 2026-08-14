@@ -11,7 +11,7 @@
     <link rel="canonical" href="https://proofchain-xzy.github.io/proofchain-landing/" />
     <meta name="color-scheme" content="light dark" />
     <meta name="theme-color" content="#fbfaf7" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#101113" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#0d1117" media="(prefers-color-scheme: dark)" />
 
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://proofchain-xzy.github.io/proofchain-landing/" />
@@ -55,6 +55,25 @@
     -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <!--
+      Applied before the stylesheet so a reader who chose a theme never sees
+      the other one flash first. Inline and synchronous by necessity: any
+      deferred or external script runs after first paint, which is the flash.
+      Falls through to the system preference when nothing was chosen.
+    -->
+    <script>
+      try {
+        var stored = localStorage.getItem('proofchain-theme');
+        if (stored === 'light' || stored === 'dark') {
+          document.documentElement.dataset.theme = stored;
+        }
+      } catch (error) {
+        /* Storage is unavailable in private modes and under some cookie
+           policies. The system preference still applies, so there is nothing
+           to recover from. */
+      }
+    </script>
 
     <!-- Our own stylesheet first: it is same-origin and it alone decides the
          layout, so it should never queue behind a third-party request. -->
@@ -109,12 +128,51 @@
           <a href="#verify">Verify it yourself</a>
           <a href="#scope">Scope</a>
         </nav>
-        <a
-          class="btn btn--solid"
-          href="https://stellar.expert/explorer/testnet/tx/3fb0f496f209507098e6439c646a60d6a576de856a28afbb4f44598b77dc512f"
-          rel="noopener"
-          >Verify a sample batch</a
-        >
+        <div class="masthead__actions">
+          <!-- Hidden until main.js marks the masthead enhanced: without
+               scripting the nav stays open and this button would do nothing. -->
+          <button class="menu-toggle" type="button" data-menu-toggle aria-expanded="false">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path
+                d="M4 7h16M4 12h16M4 17h16"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linecap="square"
+              />
+            </svg>
+            <span class="sr-only">Sections</span>
+          </button>
+
+          <!-- Label and pressed state are set by main.js once it knows which
+               theme is actually in effect; the markup cannot know. -->
+          <button class="theme-toggle" type="button" data-theme-toggle aria-pressed="false">
+            <svg class="theme-toggle__sun" width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <circle cx="12" cy="12" r="4.2" stroke="currentColor" stroke-width="1.8" />
+              <path
+                d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.2 5.2l1.6 1.6M17.2 17.2l1.6 1.6M18.8 5.2l-1.6 1.6M6.8 17.2l-1.6 1.6"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linecap="round"
+              />
+            </svg>
+            <svg class="theme-toggle__moon" width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path
+                d="M20 14.2A8.2 8.2 0 0 1 9.8 4a8.4 8.4 0 1 0 10.2 10.2Z"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linejoin="round"
+              />
+            </svg>
+            <span class="sr-only" data-theme-label>Switch theme</span>
+          </button>
+
+          <a
+            class="btn btn--solid"
+            href="https://stellar.expert/explorer/testnet/tx/3fb0f496f209507098e6439c646a60d6a576de856a28afbb4f44598b77dc512f"
+            rel="noopener"
+            >Verify a sample batch</a
+          >
+        </div>
       </div>
     </header>
 
@@ -157,7 +215,19 @@
               <a class="btn btn--ghost" href="#verify">How verification works</a>
             </div>
 
-            <dl class="hero__stats" data-lift style="--lift-order: 4">
+            <!--
+              The reference's "Built on Stellar" trust signal, set typographically.
+              No Stellar wordmark: this repository holds no licensed brand asset,
+              and a redrawn approximation is trademark misuse dressed as polish.
+              The network facts carry more weight than a logo would anyway.
+            -->
+            <p class="built" data-lift style="--lift-order: 4">
+              <span class="built__label">Built on</span>
+              <a class="built__name" href="https://stellar.org" rel="noopener">Stellar</a>
+              <span class="built__detail">classic layer · public testnet</span>
+            </p>
+
+            <dl class="hero__stats" data-lift style="--lift-order: 5">
               <div class="stat">
                 <dt>Integrity checks at ingest</dt>
                 <dd>7</dd>
@@ -178,7 +248,7 @@
           </div>
 
           <!-- The proof, up front. These are real values from a live testnet run. -->
-          <div class="hero__proof" data-lift style="--lift-order: 5">
+          <div class="hero__proof" data-lift style="--lift-order: 6">
           <aside class="receipt" aria-labelledby="receipt-title">
             <div class="receipt__head">
               <span class="receipt__title" id="receipt-title">Anchor receipt — batch sealed</span>
@@ -248,6 +318,23 @@
         </div>
       </section>
 
+      <!-- ── Summary bar ────────────────────────────────────────────── -->
+      <!-- Directly under the hero, as in the reference: a table of contents
+           for the argument, not a feature list. -->
+      <section class="summary" aria-label="What ProofChain does">
+        <div class="shell">
+          <ul class="summary__grid" data-summary></ul>
+
+          <noscript>
+            <p class="fallback">
+              Signed at the scale, checked at ingest, sealed in a Merkle tree, anchored on Stellar,
+              and checkable by anyone. Those five are the whole page in one line; the rest of it
+              sets out how each is enforced.
+            </p>
+          </noscript>
+        </div>
+      </section>
+
       <!-- ── Why this matters ───────────────────────────────────────── -->
       <section class="band section--tight" id="why">
         <div class="shell">
@@ -277,6 +364,10 @@
         <div class="shell">
           <p class="eyebrow"><span class="num">02</span> Weigh-in to audit report</p>
 
+          <!-- The whole argument as one picture, before the stepper takes it
+               apart. Values are from the same testnet run as the hero receipt. -->
+          <ol class="chain" data-chain aria-label="Chain of custody"></ol>
+
           <div class="section-head">
             <h2>Six steps, and the evidence hardens at every one.</h2>
             <p>
@@ -292,8 +383,11 @@
 
           <noscript>
             <p class="fallback">
-              The stepper needs JavaScript. The same six stages — capture, ingest, integrity,
-              batch, anchor, report — are written out in full, with the real record at each one, in
+              The chain of custody and the stepper both need JavaScript. Without it: a weigh-in is
+              signed on the device, checked at ingest, sealed into a Merkle batch, and anchored on
+              Stellar as transaction <code>3fb0f496…dc512f</code> in ledger 4033690, whose memo hash
+              is the sealed root. The same six stages — capture, ingest, integrity, batch, anchor,
+              report — are written out in full, with the real record at each one, in
               <a
                 href="https://github.com/PROOFCHAIN-XZY/proofchain/blob/main/docs/architecture.md"
                 rel="noopener"

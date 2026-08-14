@@ -185,6 +185,92 @@ const CHECKS = [
   },
 ];
 
+/*
+ * The chain of custody, as four linked states rather than six process steps.
+ *
+ * The stepper below it answers "what happens"; this answers "what exists
+ * afterwards, and what does it commit to". Every value here is real and comes
+ * from the same testnet run as the hero receipt — a diagram of made-up hashes
+ * would be the illustration this page keeps promising it is not.
+ *
+ * `link` is the operation that carries one state into the next, and is what
+ * makes the sequence a chain rather than four unrelated cards.
+ */
+const CHAIN = [
+  {
+    step: 'Signed',
+    where: 'on the device',
+    label: 'payload hash',
+    value: '4c1f9ad0…e88b',
+    note: 'ed25519, key never left the phone',
+    link: 'submitted',
+  },
+  {
+    step: 'Checked',
+    where: 'at ingest',
+    label: 'integrity verdict',
+    value: '7 / 7 pass',
+    note: 'any fail quarantines permanently',
+    link: 'batched',
+  },
+  {
+    step: 'Sealed',
+    where: 'at batch close',
+    label: 'merkle root',
+    value: 'e1a4…7f30',
+    note: '9 events, membership and order frozen',
+    link: 'anchored',
+  },
+  {
+    step: 'On the ledger',
+    where: 'stellar testnet',
+    label: 'transaction',
+    value: `${TX.slice(0, 8)}…${TX.slice(-6)}`,
+    note: 'ledger 4033690, memo hash = the sealed root',
+    href: `https://stellar.expert/explorer/testnet/tx/${TX}`,
+  },
+];
+
+/*
+ * The five-part summary bar, taken from the reference's structure.
+ *
+ * It earns its place by answering the one question the hero cannot: what is
+ * this thing, in five words or fewer, before I commit to reading a screen of
+ * argument. The reference put it directly under the hero and that placement is
+ * right — it is a table of contents, not a feature list.
+ *
+ * Icons are drawn here rather than pulled from a set: the page uses one stroke
+ * weight and square caps throughout, and no icon library matches that without
+ * being overridden into it anyway.
+ */
+const SUMMARY = [
+  {
+    title: 'Signed at the scale',
+    note: 'ed25519 on the device; we never hold the key',
+    icon: '<path d="M12 3 4 6.4v5.1c0 4.4 3.4 8 8 9.5 4.6-1.5 8-5.1 8-9.5V6.4Z"/><path d="M8.6 12.2 11 14.6l4.6-4.8"/>',
+  },
+  {
+    title: 'Checked at ingest',
+    note: 'seven integrity checks, quarantine on failure',
+    icon: '<path d="M4 5h16v14H4z"/><path d="M7.6 9.4h5.4M7.6 12.8h8.8M7.6 16.2h4"/>',
+  },
+  {
+    title: 'Sealed in a Merkle tree',
+    note: 'membership and order frozen at seal time',
+    icon: '<path d="M12 3.6v4M6 12.4v3.8M18 12.4v3.8M6 12.4h12"/><path d="M9.6 7.6h4.8v4.8H9.6zM3.6 16.2h4.8V21H3.6zM15.6 16.2h4.8V21h-4.8z"/>',
+  },
+  {
+    title: 'Anchored on Stellar',
+    note: 'confirmed back off the ledger before recording',
+    icon: '<path d="M4.6 9.6 12 5.4l7.4 4.2v4.8L12 18.6l-7.4-4.2Z"/><path d="M12 10.2v4.2"/>',
+  },
+  {
+    title: 'Checkable by anyone',
+    note: 'public report, no account, no rate limit',
+    icon: '<circle cx="11" cy="11" r="6.4"/><path d="M15.8 15.8 20.4 20.4"/>',
+  },
+];
+
 const COMMANDS = [
   {
     label: '1 · download',
@@ -331,6 +417,64 @@ function renderPipeline() {
     stepsHost.setAttribute('aria-orientation', wide.matches ? 'vertical' : 'horizontal');
   setOrientation();
   wide.addEventListener('change', setOrientation);
+}
+
+function renderSummary() {
+  const host = document.querySelector('[data-summary]');
+  if (!host) return;
+
+  SUMMARY.forEach((item) => {
+    host.append(
+      el(`
+        <li class="summary__item">
+          <svg class="summary__icon" width="22" height="22" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="1.5" stroke-linecap="square"
+               stroke-linejoin="miter" aria-hidden="true">${item.icon}</svg>
+          <p class="summary__title">${item.title}</p>
+          <p class="summary__note">${item.note}</p>
+        </li>
+      `),
+    );
+  });
+}
+
+/*
+ * An ordered list, not a row of divs. The sequence is the whole meaning here:
+ * read linearly by a screen reader it should still say signed, then checked,
+ * then sealed, then on the ledger. The connectors are decorative and hidden.
+ */
+function renderChain() {
+  const host = document.querySelector('[data-chain]');
+  if (!host) return;
+
+  CHAIN.forEach((node, i) => {
+    const last = i === CHAIN.length - 1;
+    const value = node.href
+      ? `<a class="chain__value" href="${node.href}" rel="noopener">${node.value}</a>`
+      : `<span class="chain__value">${node.value}</span>`;
+
+    host.append(
+      el(`
+        <li class="chain__node${last ? ' chain__node--final' : ''}">
+          <article class="chain__card reveal">
+            <p class="chain__step">
+              <span class="chain__num">${String(i + 1).padStart(2, '0')}</span>
+              ${node.step}
+              <span class="chain__where">${node.where}</span>
+            </p>
+            <p class="chain__label">${node.label}</p>
+            ${value}
+            <p class="chain__note">${node.note}</p>
+          </article>
+          ${
+            last
+              ? ''
+              : `<p class="chain__link" aria-hidden="true"><span>${node.link}</span></p>`
+          }
+        </li>
+      `),
+    );
+  });
 }
 
 function renderChecks() {
@@ -504,6 +648,118 @@ function wireReveals() {
   targets.forEach((node) => observer.observe(node));
 }
 
+/*
+ * Collapse the section nav behind a button on narrow screens.
+ *
+ * The masthead is only marked enhanced from here, so the collapsed state can
+ * never exist without the control that undoes it. A reader without JavaScript
+ * keeps the open nav from styles.css.
+ */
+function wireMenuToggle() {
+  const masthead = document.querySelector('.masthead');
+  const button = document.querySelector('[data-menu-toggle]');
+  const nav = masthead?.querySelector('nav');
+  if (!masthead || !button || !nav) return;
+
+  masthead.dataset.enhanced = 'true';
+
+  const setOpen = (open) => {
+    masthead.toggleAttribute('data-menu-open', open);
+    button.setAttribute('aria-expanded', String(open));
+  };
+
+  button.addEventListener('click', () => {
+    setOpen(!masthead.hasAttribute('data-menu-open'));
+  });
+
+  // Following a link is a completed navigation; leaving the panel covering the
+  // section the reader just asked for would undo the thing they wanted.
+  nav.addEventListener('click', (event) => {
+    if (event.target.closest('a')) setOpen(false);
+  });
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key !== 'Escape' || !masthead.hasAttribute('data-menu-open')) return;
+    setOpen(false);
+    button.focus();
+  });
+
+  document.addEventListener('click', (event) => {
+    if (!masthead.hasAttribute('data-menu-open')) return;
+    if (!masthead.contains(event.target)) setOpen(false);
+  });
+
+  // Crossing into the desktop layout reveals the nav inline. Leaving the open
+  // flag set would then strand aria-expanded reporting a panel that is simply
+  // the navigation, permanently visible.
+  const wide = window.matchMedia('(min-width: 56rem)');
+  wide.addEventListener('change', (event) => {
+    if (event.matches) setOpen(false);
+  });
+}
+
+/*
+ * Theme control.
+ *
+ * The stored choice is applied by an inline script in <head>, before paint.
+ * This only wires the button and keeps its label truthful — including when the
+ * reader has expressed no preference and the page is following the system,
+ * which is the state a naive toggle usually gets wrong.
+ */
+const THEME_KEY = 'proofchain-theme';
+
+function readStoredTheme() {
+  try {
+    const stored = localStorage.getItem(THEME_KEY);
+    return stored === 'light' || stored === 'dark' ? stored : null;
+  } catch {
+    return null;
+  }
+}
+
+/** The theme actually rendering, whether it was chosen or inherited. */
+function activeTheme() {
+  const chosen = document.documentElement.dataset.theme;
+  if (chosen === 'dark' || chosen === 'light') return chosen;
+  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+}
+
+function wireThemeToggle() {
+  const button = document.querySelector('[data-theme-toggle]');
+  if (!button) return;
+
+  const label = button.querySelector('[data-theme-label]');
+  const system = window.matchMedia('(prefers-color-scheme: dark)');
+
+  const sync = () => {
+    const active = activeTheme();
+    const next = active === 'dark' ? 'light' : 'dark';
+    // aria-pressed reports the state; the accessible name reports the outcome,
+    // which is what a screen reader user needs before deciding to activate it.
+    button.setAttribute('aria-pressed', String(active === 'dark'));
+    if (label) label.textContent = `Switch to ${next} theme`;
+  };
+
+  button.addEventListener('click', () => {
+    const next = activeTheme() === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    try {
+      localStorage.setItem(THEME_KEY, next);
+    } catch {
+      // Unwritable storage costs persistence across reloads, not this switch.
+    }
+    sync();
+  });
+
+  // While the reader is still following the system, track it live. Once they
+  // have chosen, a system change must not silently override that choice.
+  system.addEventListener('change', () => {
+    if (!readStoredTheme()) sync();
+  });
+
+  sync();
+}
+
 /**
  * Underline the nav link for whichever section currently owns the viewport.
  *
@@ -548,9 +804,13 @@ function wireNavHighlight() {
   sections.forEach((section) => observer.observe(section));
 }
 
+renderSummary();
+renderChain();
 renderPipeline();
 renderChecks();
 renderCommands();
 wireCopyButtons();
 wireReveals();
+wireMenuToggle();
+wireThemeToggle();
 wireNavHighlight();
