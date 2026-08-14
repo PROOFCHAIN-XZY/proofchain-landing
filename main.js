@@ -431,6 +431,21 @@ function wireTablist(host, selector) {
 /** One pending reset timer per button, so a re-click cancels its predecessor. */
 const copyTimers = new WeakMap();
 
+/**
+ * Speak a message through the polite live region in index.html.
+ *
+ * The region is cleared first: repeating the identical string is not treated
+ * as a change, so copying twice in a row would otherwise be announced once.
+ */
+function announce(message) {
+  const region = document.querySelector('[data-copy-status]');
+  if (!region) return;
+  region.textContent = '';
+  requestAnimationFrame(() => {
+    region.textContent = message;
+  });
+}
+
 function wireCopyButtons() {
   document.addEventListener('click', async (event) => {
     const button = event.target.closest('button.copy[data-copy]');
@@ -442,15 +457,19 @@ function wireCopyButtons() {
     if (button.dataset.label === undefined) button.dataset.label = button.textContent;
     clearTimeout(copyTimers.get(button));
 
+    let message;
     try {
       await navigator.clipboard.writeText(button.dataset.copy);
       button.dataset.copied = 'true';
       button.textContent = 'Copied';
+      message = 'Copied to clipboard';
     } catch {
       // Clipboard is unavailable over file:// in some browsers; say so rather
       // than showing a success state that did not happen.
       button.textContent = 'Copy failed';
+      message = 'Copy failed — the clipboard is unavailable in this context';
     }
+    announce(message);
 
     copyTimers.set(
       button,
