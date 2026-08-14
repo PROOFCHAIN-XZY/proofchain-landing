@@ -989,11 +989,18 @@ a.chain__value {
   color: var(--ink-faint);
 }
 
+/*
+ * Physical properties, not logical ones. The desktop rule below puts the label
+ * in vertical writing mode, and logical insets follow writing mode — so
+ * inset-inline there would mean top and bottom, and the connector would draw
+ * across the wrong axis.
+ */
 .chain__link::before {
   content: "";
   position: absolute;
-  inset-inline: 50%;
-  inset-block: 0;
+  top: 0;
+  bottom: 0;
+  left: 50%;
   width: 1px;
   transform: translateX(-50%);
   background: var(--rule);
@@ -1003,6 +1010,52 @@ a.chain__value {
   position: relative;
   padding: 0.2rem 0.5rem;
   background: var(--paper);
+}
+
+/*
+ * Below 62rem the chain runs top to bottom: four panels side by side on a
+ * phone would each be about 80px wide, and a Merkle root does not fit in 80px.
+ * The vertical form is not a degraded fallback — a chain of custody reads
+ * perfectly well as a column, which is why there is no horizontal scroller
+ * here the way there is on the stepper.
+ */
+@media (min-width: 62rem) {
+  .chain {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .chain__node {
+    /* The card takes the full row; the connector sits beside it, spanning the
+       gap to the next column. Laying it out this way rather than with a border
+       keeps the label centred on the join at every column width. */
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: stretch;
+  }
+
+  .chain__node--final {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .chain__link {
+    /* Vertical only on the label, so the connector below keeps a horizontal
+       writing mode and its physical insets stay physical. */
+    padding: 0 0.85rem;
+  }
+
+  .chain__link::before {
+    top: 50%;
+    bottom: auto;
+    left: 0;
+    right: 0;
+    width: auto;
+    height: 1px;
+    transform: translateY(-50%);
+  }
+
+  .chain__link span {
+    writing-mode: vertical-rl;
+    padding: 0.5rem 0.15rem;
+  }
 }
 
 /* ── Pipeline ──────────────────────────────────────────────────────── */
