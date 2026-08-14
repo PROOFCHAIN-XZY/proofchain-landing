@@ -211,6 +211,14 @@ const CHAIN = [
     label: 'integrity verdict',
     value: '7 / 7 pass',
     note: 'any fail quarantines permanently',
+    link: 'transferred',
+  },
+  {
+    step: 'Reconciled',
+    where: 'in custody',
+    label: 'weight in → out',
+    value: '125.300 → 125.300',
+    note: 'a gap must carry a stated reason to be written at all',
     link: 'batched',
   },
   {
@@ -228,6 +236,14 @@ const CHAIN = [
     value: `${TX.slice(0, 8)}…${TX.slice(-6)}`,
     note: 'ledger 4033690, memo hash = the sealed root',
     href: `https://stellar.expert/explorer/testnet/tx/${TX}`,
+    link: 'published',
+  },
+  {
+    step: 'Audit-ready',
+    where: 'public report',
+    label: 'endpoint',
+    value: '/batches/:id/report',
+    note: 'events, proofs, reconciliation — no account required',
   },
 ];
 
