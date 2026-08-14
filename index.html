@@ -324,6 +324,14 @@
       <section class="summary" aria-label="What ProofChain does">
         <div class="shell">
           <ul class="summary__grid" data-summary></ul>
+
+          <noscript>
+            <p class="fallback">
+              Signed at the scale, checked at ingest, sealed in a Merkle tree, anchored on Stellar,
+              and checkable by anyone. Those five are the whole page in one line; the rest of it
+              sets out how each is enforced.
+            </p>
+          </noscript>
         </div>
       </section>
 
@@ -375,8 +383,11 @@
 
           <noscript>
             <p class="fallback">
-              The stepper needs JavaScript. The same six stages — capture, ingest, integrity,
-              batch, anchor, report — are written out in full, with the real record at each one, in
+              The chain of custody and the stepper both need JavaScript. Without it: a weigh-in is
+              signed on the device, checked at ingest, sealed into a Merkle batch, and anchored on
+              Stellar as transaction <code>3fb0f496…dc512f</code> in ledger 4033690, whose memo hash
+              is the sealed root. The same six stages — capture, ingest, integrity, batch, anchor,
+              report — are written out in full, with the real record at each one, in
               <a
                 href="https://github.com/PROOFCHAIN-XZY/proofchain/blob/main/docs/architecture.md"
                 rel="noopener"
