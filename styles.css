@@ -343,16 +343,42 @@ section {
   color: var(--verified);
 }
 
+/*
+ * Navigation was display:none below 56rem, so a phone got no section links at
+ * all — the four sections were reachable only by scrolling past them.
+ *
+ * The base state is now a visible wrapped row, which is what a reader without
+ * JavaScript keeps. The collapse into a menu button is layered on top of that
+ * by main.js, so the enhancement can only ever add capability.
+ */
+.masthead__inner {
+  flex-wrap: wrap;
+  row-gap: 0;
+}
+
 .masthead nav {
-  display: none;
-  margin-inline-start: auto;
-  gap: 1.75rem;
+  display: flex;
+  flex-wrap: wrap;
+  order: 3;
+  width: 100%;
+  gap: 0 1.25rem;
+  padding-block: 0.25rem 0.6rem;
+  border-top: 1px solid var(--rule-soft);
   font-size: 0.875rem;
 }
 
 @media (min-width: 56rem) {
+  .masthead__inner {
+    flex-wrap: nowrap;
+  }
+
   .masthead nav {
-    display: flex;
+    order: 0;
+    width: auto;
+    margin-inline-start: auto;
+    gap: 1.75rem;
+    padding-block: 0;
+    border-top: 0;
   }
 }
 
