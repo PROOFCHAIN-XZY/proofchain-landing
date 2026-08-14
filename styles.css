@@ -967,6 +967,44 @@ a.chain__value {
   color: var(--ink-soft);
 }
 
+/*
+ * The connector carries the name of the operation that moves one state to the
+ * next — submitted, batched, anchored. Four cards in a row are four facts;
+ * four cards joined by a named operation are an argument, and the naming is
+ * what stops a reader assuming the states are merely adjacent in time.
+ *
+ * Drawn with a pseudo-element rule behind centred text on the surface colour,
+ * so the line appears to pass under the label rather than collide with it.
+ */
+.chain__link {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-block: 0.85rem;
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.chain__link::before {
+  content: "";
+  position: absolute;
+  inset-inline: 50%;
+  inset-block: 0;
+  width: 1px;
+  transform: translateX(-50%);
+  background: var(--rule);
+}
+
+.chain__link span {
+  position: relative;
+  padding: 0.2rem 0.5rem;
+  background: var(--paper);
+}
+
 /* ── Pipeline ──────────────────────────────────────────────────────── */
 
 .pipeline {
