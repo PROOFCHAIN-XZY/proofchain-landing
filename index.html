@@ -577,6 +577,35 @@
       </div>
     </footer>
 
+    <!--
+      Structured data. Modelled as SoftwareSourceCode rather than Product or
+      Organization: this page describes a testnet pilot codebase, not something
+      on sale and not a company. Claiming otherwise in machine-readable form
+      would be the same overstatement the Scope section exists to avoid.
+    -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareSourceCode",
+        "name": "ProofChain",
+        "description": "Verified waste-to-credit infrastructure on Stellar. Weigh-ins are signed on-device, checked by seven integrity checks at ingest, sealed into a Merkle batch, and anchored on the Stellar ledger so a credit buyer can recompute the tonne without trusting the operator.",
+        "url": "https://proofchain-xzy.github.io/proofchain-landing/",
+        "codeRepository": "https://github.com/PROOFCHAIN-XZY/proofchain",
+        "programmingLanguage": "TypeScript",
+        "license": "https://opensource.org/licenses/MIT",
+        "applicationCategory": "DeveloperApplication",
+        "keywords": [
+          "waste credits",
+          "plastic credits",
+          "Stellar",
+          "Merkle proof",
+          "ed25519",
+          "verifiable supply chain"
+        ],
+        "image": "https://proofchain-xzy.github.io/proofchain-landing/assets/og.png"
+      }
+    </script>
+
     <script src="main.js" defer></script>
   </body>
 </html>
