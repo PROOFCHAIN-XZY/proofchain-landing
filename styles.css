@@ -411,6 +411,48 @@ section {
   }
 }
 
+/* ── Menu toggle ───────────────────────────────────────────────────── */
+
+/*
+ * Only exists once JavaScript has marked the masthead enhanced, and only below
+ * the breakpoint where the nav sits inline. Anywhere else it would be a button
+ * that controls nothing.
+ */
+.menu-toggle {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: var(--tap);
+  height: var(--tap);
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 2px;
+  background: transparent;
+  color: var(--ink-soft);
+  cursor: pointer;
+  transition: color var(--duration) var(--ease), border-color var(--duration) var(--ease);
+}
+
+.menu-toggle:hover {
+  color: var(--ink);
+  border-color: var(--rule);
+}
+
+@media (max-width: 55.999rem) {
+  .masthead[data-enhanced] .menu-toggle {
+    display: inline-flex;
+  }
+
+  /* Collapsed by default once enhanced; the button is the only way back. */
+  .masthead[data-enhanced] nav {
+    display: none;
+  }
+
+  .masthead[data-enhanced][data-menu-open] nav {
+    display: flex;
+  }
+}
+
 /* ── Theme toggle ──────────────────────────────────────────────────── */
 
 /*

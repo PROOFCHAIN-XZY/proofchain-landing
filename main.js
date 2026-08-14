@@ -649,6 +649,56 @@ function wireReveals() {
 }
 
 /*
+ * Collapse the section nav behind a button on narrow screens.
+ *
+ * The masthead is only marked enhanced from here, so the collapsed state can
+ * never exist without the control that undoes it. A reader without JavaScript
+ * keeps the open nav from styles.css.
+ */
+function wireMenuToggle() {
+  const masthead = document.querySelector('.masthead');
+  const button = document.querySelector('[data-menu-toggle]');
+  const nav = masthead?.querySelector('nav');
+  if (!masthead || !button || !nav) return;
+
+  masthead.dataset.enhanced = 'true';
+
+  const setOpen = (open) => {
+    masthead.toggleAttribute('data-menu-open', open);
+    button.setAttribute('aria-expanded', String(open));
+  };
+
+  button.addEventListener('click', () => {
+    setOpen(!masthead.hasAttribute('data-menu-open'));
+  });
+
+  // Following a link is a completed navigation; leaving the panel covering the
+  // section the reader just asked for would undo the thing they wanted.
+  nav.addEventListener('click', (event) => {
+    if (event.target.closest('a')) setOpen(false);
+  });
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key !== 'Escape' || !masthead.hasAttribute('data-menu-open')) return;
+    setOpen(false);
+    button.focus();
+  });
+
+  document.addEventListener('click', (event) => {
+    if (!masthead.hasAttribute('data-menu-open')) return;
+    if (!masthead.contains(event.target)) setOpen(false);
+  });
+
+  // Crossing into the desktop layout reveals the nav inline. Leaving the open
+  // flag set would then strand aria-expanded reporting a panel that is simply
+  // the navigation, permanently visible.
+  const wide = window.matchMedia('(min-width: 56rem)');
+  wide.addEventListener('change', (event) => {
+    if (event.matches) setOpen(false);
+  });
+}
+
+/*
  * Theme control.
  *
  * The stored choice is applied by an inline script in <head>, before paint.
@@ -761,5 +811,6 @@ renderChecks();
 renderCommands();
 wireCopyButtons();
 wireReveals();
+wireMenuToggle();
 wireThemeToggle();
 wireNavHighlight();
