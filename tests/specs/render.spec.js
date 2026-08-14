@@ -54,7 +54,12 @@ test('the anchor receipt shows the transaction that the links point at', async (
   // the hash in the explorer link ever diverge, the page is citing evidence
   // that does not support it.
   await expect(page.locator('[data-hash]')).toHaveText(hash);
-  await expect(page.locator(`a[href*="${hash}"]`).first()).toBeVisible();
+
+  // At least one *visible* link must reach the explorer. Asserting on .first()
+  // was wrong: below 56rem the masthead call to action is deliberately hidden,
+  // so the first match in DOM order is a link nobody can see, and the test
+  // failed on a page that was behaving correctly.
+  await expect(page.locator(`a[href*="${hash}"]:visible`).first()).toBeVisible();
 
   const copyValue = await page.locator('button.copy[data-copy]').first().getAttribute('data-copy');
   expect(copyValue).toBe(hash);
