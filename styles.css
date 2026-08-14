@@ -924,6 +924,32 @@ section {
   margin-top: 2.25rem;
 }
 
+/* ── Inline links that must still be thumb-sized ───────────────────── */
+
+/*
+ * The same trick .copy uses below: keep the visual bounds tight — a padded
+ * chip around a hash or a brand name would outweigh what it labels — and
+ * expand only the hit zone with a pseudo-element.
+ *
+ * Both of these were caught by the tap-target test rather than by eye, which
+ * is the point of hit-testing that requirement instead of measuring it.
+ */
+.built__name,
+a.chain__value {
+  position: relative;
+}
+
+.built__name::after,
+a.chain__value::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: var(--tap);
+  transform: translateY(-50%);
+}
+
 /* ── Copy button ───────────────────────────────────────────────────── */
 
 /*
