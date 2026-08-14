@@ -21,10 +21,6 @@
   --paper: #fbfaf7;
   --paper-deep: #f3f1ea;
   --surface: #ffffff;
-  /* One step above --surface, for a card that overlaps another card. The
-     documentary language has no drop shadows, so depth is carried by tone
-     and a hairline rather than by elevation blur. */
-  --surface-raised: #ffffff;
   --ink: #17181a;
   --ink-soft: #5c6068;
   /* Darker than the dashboard's faint ink: here it carries 11px mono labels on
@@ -86,7 +82,6 @@
     --paper: #0d1117;
     --paper-deep: #080b0f;
     --surface: #141a21;
-    --surface-raised: #1a222b;
     --ink: #ecebe8;
     --ink-soft: #a4a8b0;
     --ink-faint: #878b93;
@@ -115,7 +110,6 @@
   --paper: #0d1117;
   --paper-deep: #080b0f;
   --surface: #141a21;
-  --surface-raised: #1a222b;
   --ink: #ecebe8;
   --ink-soft: #a4a8b0;
   --ink-faint: #878b93;
