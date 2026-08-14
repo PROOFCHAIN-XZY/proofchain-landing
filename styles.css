@@ -16,9 +16,15 @@
  */
 
 :root {
+  color-scheme: light;
+
   --paper: #fbfaf7;
   --paper-deep: #f3f1ea;
   --surface: #ffffff;
+  /* One step above --surface, for a card that overlaps another card. The
+     documentary language has no drop shadows, so depth is carried by tone
+     and a hairline rather than by elevation blur. */
+  --surface-raised: #ffffff;
   --ink: #17181a;
   --ink-soft: #5c6068;
   /* Darker than the dashboard's faint ink: here it carries 11px mono labels on
@@ -60,16 +66,32 @@
   --ease: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+/*
+ * Dark palette, declared twice on purpose.
+ *
+ * The first block answers the system preference. The second answers an
+ * explicit choice from the theme control, which has to win even in a browser
+ * set to light — a rule nested inside the media query cannot do that, and the
+ * [data-theme] hook that was already in this file could not actually turn the
+ * page dark for exactly that reason.
+ *
+ * CSS has no way to share one declaration list between a media rule and a
+ * plain selector, so the two lists are duplicated. They must stay identical:
+ * theme.spec.js parses this file and fails if the token sets diverge.
+ */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --paper: #101113;
-    --paper-deep: #0a0b0c;
-    --surface: #17181b;
+    color-scheme: dark;
+
+    --paper: #0d1117;
+    --paper-deep: #080b0f;
+    --surface: #141a21;
+    --surface-raised: #1a222b;
     --ink: #ecebe8;
     --ink-soft: #a4a8b0;
     --ink-faint: #878b93;
-    --rule: #2b2d31;
-    --rule-soft: #212327;
+    --rule: #29313a;
+    --rule-soft: #1e252d;
     --rule-strong: #ecebe8;
 
     --verified: #5fd1a3;
@@ -80,11 +102,39 @@
     --broken-bg: #2e1614;
     --accent: #8fb0ff;
 
-    --terminal-bg: #0a0b0c;
+    --terminal-bg: #080b0f;
     --terminal-ink: #dcdad4;
     --terminal-faint: #82868e;
-    --terminal-rule: #24262a;
+    --terminal-rule: #222932;
   }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --paper: #0d1117;
+  --paper-deep: #080b0f;
+  --surface: #141a21;
+  --surface-raised: #1a222b;
+  --ink: #ecebe8;
+  --ink-soft: #a4a8b0;
+  --ink-faint: #878b93;
+  --rule: #29313a;
+  --rule-soft: #1e252d;
+  --rule-strong: #ecebe8;
+
+  --verified: #5fd1a3;
+  --verified-bg: #12291f;
+  --pending: #e0a951;
+  --pending-bg: #2b2110;
+  --broken: #f08a80;
+  --broken-bg: #2e1614;
+  --accent: #8fb0ff;
+
+  --terminal-bg: #080b0f;
+  --terminal-ink: #dcdad4;
+  --terminal-faint: #82868e;
+  --terminal-rule: #222932;
 }
 
 *,
