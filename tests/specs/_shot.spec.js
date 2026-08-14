@@ -1,8 +1,8 @@
 import { test } from '@playwright/test';
 test('shot', async ({ page }) => {
   await page.goto('/', { waitUntil: 'domcontentloaded' });
-  await page.waitForSelector('.chain__card');
-  await page.locator('.chain').scrollIntoViewIfNeeded();
-  await page.waitForTimeout(600);
-  await page.locator('.chain').screenshot({ animations: 'disabled', timeout: 15000, path: '../.cache/shots/chain.png' });
+  await page.waitForSelector('.summary__item');
+  await page.locator('.summary').scrollIntoViewIfNeeded();
+  await page.waitForTimeout(500);
+  await page.locator('.summary').screenshot({ animations: 'disabled', timeout: 15000, path: '../.cache/shots/summary.png' });
 });

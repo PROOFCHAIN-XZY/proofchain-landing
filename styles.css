@@ -879,6 +879,69 @@ section {
   color: var(--broken);
 }
 
+/* ── Summary bar ───────────────────────────────────────────────────── */
+
+/*
+ * The reference enclosed this strip in a rounded translucent panel with a
+ * glowing border. Here it is a ruled band — the five items are separated by
+ * hairlines rather than boxed, so the strip reads as one continuous statement
+ * broken into five parts rather than five cards that happen to be adjacent.
+ */
+.summary {
+  padding-block: clamp(1.75rem, 1rem + 2.5vw, 2.75rem);
+  background: var(--paper-deep);
+}
+
+.summary__grid {
+  display: grid;
+  gap: 1.5rem 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media (min-width: 40rem) {
+  .summary__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 62rem) {
+  .summary__grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 0;
+  }
+
+  /* Rules between, not around. The first item has no leading rule, so the
+     band opens flush with the page gutter. */
+  .summary__item + .summary__item {
+    border-inline-start: 1px solid var(--rule);
+    padding-inline-start: clamp(1rem, 2vw, 1.75rem);
+  }
+
+  .summary__item:not(:last-child) {
+    padding-inline-end: clamp(1rem, 2vw, 1.75rem);
+  }
+}
+
+.summary__icon {
+  display: block;
+  color: var(--verified);
+}
+
+.summary__title {
+  margin-top: 0.7rem;
+  font-size: 0.9375rem;
+  color: var(--ink);
+}
+
+.summary__note {
+  margin-top: 0.2rem;
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  color: var(--ink-soft);
+}
+
 /* ── Chain of custody ──────────────────────────────────────────────── */
 
 /*
