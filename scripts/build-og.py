@@ -96,6 +96,7 @@ def build() -> None:
     mono_label = load("mono", 15, 400)
     mono_value = load("mono", 19, 400)
     chip_face = load("mono", 15, 500)
+    mono_small = load("mono", 16, 400)
 
     # ── Masthead ────────────────────────────────────────────────────────
     tick = MARGIN
@@ -136,19 +137,19 @@ def build() -> None:
         fill=INK_SOFT,
     )
 
-    # ── Anchor receipt strip ────────────────────────────────────────────
-    strip = 428
-    rule(draw, strip)
-    draw.text((MARGIN, strip + 26), "ANCHOR RECEIPT", font=mono_label, fill=INK_FAINT)
+    # ── Chain of custody ────────────────────────────────────────────────
+    # Mirrors the four-state chain on the page, so the card and the page it
+    # links to make the same argument in the same shape. This replaces the
+    # separate receipt strip that used to sit here: the chain's final state is
+    # the anchor, and printing the receipt underneath said it a second time.
+    chain_y = 418
+    rule(draw, chain_y)
 
-    # Verified chip, right-aligned on the same baseline.
+    # Verified chip, riding the rule at the right.
     label = "VERIFIED"
     chip_w = int(draw.textlength(label, font=chip_face)) + 46
-    chip_x1, chip_y0, chip_h = WIDTH - MARGIN, strip + 18, 30
-    draw.rectangle(
-        [chip_x1 - chip_w, chip_y0, chip_x1, chip_y0 + chip_h],
-        fill=VERIFIED_BG,
-    )
+    chip_x1, chip_y0, chip_h = WIDTH - MARGIN, chain_y + 16, 30
+    draw.rectangle([chip_x1 - chip_w, chip_y0, chip_x1, chip_y0 + chip_h], fill=VERIFIED_BG)
     draw.line(
         [
             (chip_x1 - chip_w + 13, chip_y0 + 16),
@@ -160,17 +161,29 @@ def build() -> None:
     )
     draw.text((chip_x1 - chip_w + 34, chip_y0 + 7), label, font=chip_face, fill=VERIFIED)
 
-    # The hash is the evidence, so it gets the largest mono setting on the card
-    # and is split across two lines rather than truncated with an ellipsis.
-    draw.text((MARGIN, strip + 62), TX[:32], font=mono_value, fill=INK)
-    draw.text((MARGIN, strip + 90), TX[32:], font=mono_value, fill=INK)
+    states = [
+        ("SIGNED", "4c1f9ad0\u2026e88b"),
+        ("CHECKED", "7 / 7 pass"),
+        ("SEALED", "e1a4\u20267f30"),
+        ("ON THE LEDGER", TX[:8] + "\u2026" + TX[-6:]),
+    ]
+    # Four columns across the width the chip does not occupy.
+    column = (WIDTH - 2 * MARGIN - chip_w - 24) / len(states)
 
-    for index, (key, value) in enumerate(
-        [("LEDGER", LEDGER), ("FEE", "100 stroops"), ("MEMO", "= sealed root")]
-    ):
-        col = MARGIN + 560 + index * 172
-        draw.text((col, strip + 62), key, font=mono_label, fill=INK_FAINT)
-        draw.text((col, strip + 86), value, font=mono_value, fill=INK)
+    for index, (state, value) in enumerate(states):
+        x = MARGIN + index * column
+        if index:
+            # Hairline between states, matching the page's connectors.
+            draw.line([(x - 20, chain_y + 30), (x - 20, chain_y + 84)], fill=RULE, width=1)
+        draw.text((x, chain_y + 28), state, font=mono_label, fill=INK_FAINT)
+        draw.text((x, chain_y + 54), value, font=mono_value, fill=INK)
+
+    draw.text(
+        (MARGIN, chain_y + 100),
+        f"ledger {LEDGER}  \u00b7  100 stroops  \u00b7  memo hash = the sealed root",
+        font=mono_label,
+        fill=INK_FAINT,
+    )
 
     rule(draw, HEIGHT - 66)
     draw.text(
