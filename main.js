@@ -185,6 +185,52 @@ const CHECKS = [
   },
 ];
 
+/*
+ * The chain of custody, as four linked states rather than six process steps.
+ *
+ * The stepper below it answers "what happens"; this answers "what exists
+ * afterwards, and what does it commit to". Every value here is real and comes
+ * from the same testnet run as the hero receipt — a diagram of made-up hashes
+ * would be the illustration this page keeps promising it is not.
+ *
+ * `link` is the operation that carries one state into the next, and is what
+ * makes the sequence a chain rather than four unrelated cards.
+ */
+const CHAIN = [
+  {
+    step: 'Signed',
+    where: 'on the device',
+    label: 'payload hash',
+    value: '4c1f9ad0…e88b',
+    note: 'ed25519, key never left the phone',
+    link: 'submitted',
+  },
+  {
+    step: 'Checked',
+    where: 'at ingest',
+    label: 'integrity verdict',
+    value: '7 / 7 pass',
+    note: 'any fail quarantines permanently',
+    link: 'batched',
+  },
+  {
+    step: 'Sealed',
+    where: 'at batch close',
+    label: 'merkle root',
+    value: 'e1a4…7f30',
+    note: '9 events, membership and order frozen',
+    link: 'anchored',
+  },
+  {
+    step: 'On the ledger',
+    where: 'stellar testnet',
+    label: 'transaction',
+    value: `${TX.slice(0, 8)}…${TX.slice(-6)}`,
+    note: 'ledger 4033690, memo hash = the sealed root',
+    href: `https://stellar.expert/explorer/testnet/tx/${TX}`,
+  },
+];
+
 const COMMANDS = [
   {
     label: '1 · download',
@@ -331,6 +377,45 @@ function renderPipeline() {
     stepsHost.setAttribute('aria-orientation', wide.matches ? 'vertical' : 'horizontal');
   setOrientation();
   wide.addEventListener('change', setOrientation);
+}
+
+/*
+ * An ordered list, not a row of divs. The sequence is the whole meaning here:
+ * read linearly by a screen reader it should still say signed, then checked,
+ * then sealed, then on the ledger. The connectors are decorative and hidden.
+ */
+function renderChain() {
+  const host = document.querySelector('[data-chain]');
+  if (!host) return;
+
+  CHAIN.forEach((node, i) => {
+    const last = i === CHAIN.length - 1;
+    const value = node.href
+      ? `<a class="chain__value" href="${node.href}" rel="noopener">${node.value}</a>`
+      : `<span class="chain__value">${node.value}</span>`;
+
+    host.append(
+      el(`
+        <li class="chain__node${last ? ' chain__node--final' : ''}">
+          <article class="chain__card reveal">
+            <p class="chain__step">
+              <span class="chain__num">${String(i + 1).padStart(2, '0')}</span>
+              ${node.step}
+              <span class="chain__where">${node.where}</span>
+            </p>
+            <p class="chain__label">${node.label}</p>
+            ${value}
+            <p class="chain__note">${node.note}</p>
+          </article>
+          ${
+            last
+              ? ''
+              : `<p class="chain__link" aria-hidden="true"><span>${node.link}</span></p>`
+          }
+        </li>
+      `),
+    );
+  });
 }
 
 function renderChecks() {
@@ -610,6 +695,7 @@ function wireNavHighlight() {
   sections.forEach((section) => observer.observe(section));
 }
 
+renderChain();
 renderPipeline();
 renderChecks();
 renderCommands();
