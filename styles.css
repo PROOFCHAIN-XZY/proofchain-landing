@@ -372,13 +372,68 @@ section {
   border-bottom-color: var(--rule-strong);
 }
 
-.masthead .btn {
+.masthead__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
   margin-inline-start: auto;
 }
 
 @media (min-width: 56rem) {
-  .masthead .btn {
+  .masthead__actions {
     margin-inline-start: 0;
+  }
+}
+
+/* ── Theme toggle ──────────────────────────────────────────────────── */
+
+/*
+ * Icon-only, because the masthead already carries a wordmark, four links and
+ * a call to action, and a fifth labelled control would flatten that hierarchy.
+ * The accessible name is a visually hidden span rather than aria-label, so it
+ * is translated by page-translation tools along with everything else.
+ */
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--tap);
+  height: var(--tap);
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 2px;
+  background: transparent;
+  color: var(--ink-soft);
+  cursor: pointer;
+  transition: color var(--duration) var(--ease), border-color var(--duration) var(--ease);
+}
+
+.theme-toggle:hover {
+  color: var(--ink);
+  border-color: var(--rule);
+}
+
+/* Exactly one icon shows: the one for the theme the button switches *to*, so
+   the control depicts its result rather than the current state. */
+.theme-toggle__moon {
+  display: none;
+}
+
+:root[data-theme="dark"] .theme-toggle__sun {
+  display: none;
+}
+
+:root[data-theme="dark"] .theme-toggle__moon {
+  display: inline;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .theme-toggle__sun {
+    display: none;
+  }
+
+  :root:not([data-theme="light"]) .theme-toggle__moon {
+    display: inline;
   }
 }
 

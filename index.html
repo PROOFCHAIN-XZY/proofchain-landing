@@ -58,6 +58,25 @@
 
     <!-- Our own stylesheet first: it is same-origin and it alone decides the
          layout, so it should never queue behind a third-party request. -->
+    <!--
+      Applied before the stylesheet so a reader who chose a theme never sees
+      the other one flash first. Inline and synchronous by necessity: any
+      deferred or external script runs after first paint, which is the flash.
+      Falls through to the system preference when nothing was chosen.
+    -->
+    <script>
+      try {
+        var stored = localStorage.getItem('proofchain-theme');
+        if (stored === 'light' || stored === 'dark') {
+          document.documentElement.dataset.theme = stored;
+        }
+      } catch (error) {
+        /* Storage is unavailable in private modes and under some cookie
+           policies. The system preference still applies, so there is nothing
+           to recover from. */
+      }
+    </script>
+
     <link rel="stylesheet" href="styles.css" />
 
     <!--
@@ -109,12 +128,37 @@
           <a href="#verify">Verify it yourself</a>
           <a href="#scope">Scope</a>
         </nav>
-        <a
-          class="btn btn--solid"
-          href="https://stellar.expert/explorer/testnet/tx/3fb0f496f209507098e6439c646a60d6a576de856a28afbb4f44598b77dc512f"
-          rel="noopener"
-          >Verify a sample batch</a
-        >
+        <div class="masthead__actions">
+          <!-- Label and pressed state are set by main.js once it knows which
+               theme is actually in effect; the markup cannot know. -->
+          <button class="theme-toggle" type="button" data-theme-toggle aria-pressed="false">
+            <svg class="theme-toggle__sun" width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <circle cx="12" cy="12" r="4.2" stroke="currentColor" stroke-width="1.8" />
+              <path
+                d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.2 5.2l1.6 1.6M17.2 17.2l1.6 1.6M18.8 5.2l-1.6 1.6M6.8 17.2l-1.6 1.6"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linecap="round"
+              />
+            </svg>
+            <svg class="theme-toggle__moon" width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path
+                d="M20 14.2A8.2 8.2 0 0 1 9.8 4a8.4 8.4 0 1 0 10.2 10.2Z"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linejoin="round"
+              />
+            </svg>
+            <span class="sr-only" data-theme-label>Switch theme</span>
+          </button>
+
+          <a
+            class="btn btn--solid"
+            href="https://stellar.expert/explorer/testnet/tx/3fb0f496f209507098e6439c646a60d6a576de856a28afbb4f44598b77dc512f"
+            rel="noopener"
+            >Verify a sample batch</a
+          >
+        </div>
       </div>
     </header>
 

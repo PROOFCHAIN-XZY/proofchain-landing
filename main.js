@@ -504,6 +504,68 @@ function wireReveals() {
   targets.forEach((node) => observer.observe(node));
 }
 
+/*
+ * Theme control.
+ *
+ * The stored choice is applied by an inline script in <head>, before paint.
+ * This only wires the button and keeps its label truthful — including when the
+ * reader has expressed no preference and the page is following the system,
+ * which is the state a naive toggle usually gets wrong.
+ */
+const THEME_KEY = 'proofchain-theme';
+
+function readStoredTheme() {
+  try {
+    const stored = localStorage.getItem(THEME_KEY);
+    return stored === 'light' || stored === 'dark' ? stored : null;
+  } catch {
+    return null;
+  }
+}
+
+/** The theme actually rendering, whether it was chosen or inherited. */
+function activeTheme() {
+  const chosen = document.documentElement.dataset.theme;
+  if (chosen === 'dark' || chosen === 'light') return chosen;
+  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+}
+
+function wireThemeToggle() {
+  const button = document.querySelector('[data-theme-toggle]');
+  if (!button) return;
+
+  const label = button.querySelector('[data-theme-label]');
+  const system = window.matchMedia('(prefers-color-scheme: dark)');
+
+  const sync = () => {
+    const active = activeTheme();
+    const next = active === 'dark' ? 'light' : 'dark';
+    // aria-pressed reports the state; the accessible name reports the outcome,
+    // which is what a screen reader user needs before deciding to activate it.
+    button.setAttribute('aria-pressed', String(active === 'dark'));
+    if (label) label.textContent = `Switch to ${next} theme`;
+  };
+
+  button.addEventListener('click', () => {
+    const next = activeTheme() === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    try {
+      localStorage.setItem(THEME_KEY, next);
+    } catch {
+      // Unwritable storage costs persistence across reloads, not this switch.
+    }
+    sync();
+  });
+
+  // While the reader is still following the system, track it live. Once they
+  // have chosen, a system change must not silently override that choice.
+  system.addEventListener('change', () => {
+    if (!readStoredTheme()) sync();
+  });
+
+  sync();
+}
+
 /**
  * Underline the nav link for whichever section currently owns the viewport.
  *
@@ -553,4 +615,5 @@ renderChecks();
 renderCommands();
 wireCopyButtons();
 wireReveals();
+wireThemeToggle();
 wireNavHighlight();
