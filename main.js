@@ -322,6 +322,15 @@ function renderPipeline() {
   });
 
   wireTablist(stepsHost, '.step');
+
+  // The stepper is a scrolling row on narrow screens and a sticky column from
+  // 68rem, matching the .steps breakpoint in styles.css. Announcing a fixed
+  // orientation would be wrong at one of the two, so it follows the layout.
+  const wide = window.matchMedia('(min-width: 68rem)');
+  const setOrientation = () =>
+    stepsHost.setAttribute('aria-orientation', wide.matches ? 'vertical' : 'horizontal');
+  setOrientation();
+  wide.addEventListener('change', setOrientation);
 }
 
 function renderChecks() {
