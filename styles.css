@@ -912,6 +912,28 @@ section {
     gap: 0;
   }
 
+  /*
+   * "Sealed in a Merkle tree" is the one title that wraps to two lines, which
+   * pushed its note a line below every other note and broke the horizontal
+   * reading of the band. Subgrid gives all five items the same three rows —
+   * icon, title, note — so the notes share a baseline however the titles wrap.
+   *
+   * Guarded: without subgrid the items keep their natural flow, which is the
+   * slightly ragged version this replaces, not a broken one.
+   */
+  @supports (grid-template-rows: subgrid) {
+    .summary__grid {
+      grid-template-rows: auto auto auto;
+    }
+
+    .summary__item {
+      display: grid;
+      grid-row: span 3;
+      grid-template-rows: subgrid;
+      align-content: start;
+    }
+  }
+
   /* Rules between, not around. The first item has no leading rule, so the
      band opens flush with the page gutter. */
   .summary__item + .summary__item {
