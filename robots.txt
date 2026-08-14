@@ -1,0 +1,7 @@
+# Everything here is public by design — the argument of the page is that
+# verification needs no permission from us. Nothing is disallowed.
+
+User-agent: *
+Allow: /
+
+Sitemap: https://proofchain-xzy.github.io/proofchain-landing/sitemap.xml
