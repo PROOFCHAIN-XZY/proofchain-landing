@@ -1011,6 +1011,13 @@ section {
   color: var(--ink);
 }
 
+/* A check with two possible outcomes carries two badges, kept on one line. */
+.check__verdicts {
+  display: flex;
+  flex-shrink: 0;
+  gap: 0.3rem;
+}
+
 .check__verdict {
   font-family: var(--mono);
   font-size: 0.62rem;

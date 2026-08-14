@@ -171,8 +171,11 @@ const CHECKS = [
     defends: 'Replaying a signed weigh-in to mint credit from nothing.',
   },
   {
+    // The only check with two outcomes, so it carries two badges. Showing just
+    // "warn" understated it — an unparseable or future-dated capturedAt is a
+    // hard fail in events/integrity.ts and quarantines the event.
     name: 'clock_plausible',
-    verdict: 'warn',
+    verdict: ['fail', 'warn'],
     defends: 'Forged timestamps. Future-dated fails; backdated warns, since offline sync is normal.',
   },
   {
@@ -326,12 +329,15 @@ function renderChecks() {
   if (!host) return;
 
   CHECKS.forEach((check) => {
+    const verdicts = [check.verdict].flat();
     host.append(
       el(`
         <article class="check reveal">
           <div class="check__head">
             <span class="check__name">${check.name}</span>
-            <span class="check__verdict" data-v="${check.verdict}">${check.verdict}</span>
+            <span class="check__verdicts">${verdicts
+              .map((v) => `<span class="check__verdict" data-v="${v}">${v}</span>`)
+              .join('')}</span>
           </div>
           <p class="check__defends"><b>Defends against</b>${check.defends}</p>
         </article>
