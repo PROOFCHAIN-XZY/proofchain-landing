@@ -1,0 +1,13 @@
+{
+  "name": "proofchain-landing-tests",
+  "private": true,
+  "description": "Playwright checks for the landing page. Kept out of the site root so the published site stays dependency-free.",
+  "scripts": {
+    "test": "playwright test",
+    "test:ui": "playwright test --ui",
+    "install:browsers": "playwright install chromium"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.49.0"
+  }
+}
