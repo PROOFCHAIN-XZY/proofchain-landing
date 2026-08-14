@@ -171,8 +171,11 @@ const CHECKS = [
     defends: 'Replaying a signed weigh-in to mint credit from nothing.',
   },
   {
+    // The only check with two outcomes, so it carries two badges. Showing just
+    // "warn" understated it — an unparseable or future-dated capturedAt is a
+    // hard fail in events/integrity.ts and quarantines the event.
     name: 'clock_plausible',
-    verdict: 'warn',
+    verdict: ['fail', 'warn'],
     defends: 'Forged timestamps. Future-dated fails; backdated warns, since offline sync is normal.',
   },
   {
@@ -319,6 +322,15 @@ function renderPipeline() {
   });
 
   wireTablist(stepsHost, '.step');
+
+  // The stepper is a scrolling row on narrow screens and a sticky column from
+  // 68rem, matching the .steps breakpoint in styles.css. Announcing a fixed
+  // orientation would be wrong at one of the two, so it follows the layout.
+  const wide = window.matchMedia('(min-width: 68rem)');
+  const setOrientation = () =>
+    stepsHost.setAttribute('aria-orientation', wide.matches ? 'vertical' : 'horizontal');
+  setOrientation();
+  wide.addEventListener('change', setOrientation);
 }
 
 function renderChecks() {
@@ -326,12 +338,15 @@ function renderChecks() {
   if (!host) return;
 
   CHECKS.forEach((check) => {
+    const verdicts = [check.verdict].flat();
     host.append(
       el(`
         <article class="check reveal">
           <div class="check__head">
             <span class="check__name">${check.name}</span>
-            <span class="check__verdict" data-v="${check.verdict}">${check.verdict}</span>
+            <span class="check__verdicts">${verdicts
+              .map((v) => `<span class="check__verdict" data-v="${v}">${v}</span>`)
+              .join('')}</span>
           </div>
           <p class="check__defends"><b>Defends against</b>${check.defends}</p>
         </article>
@@ -389,7 +404,10 @@ function wireTablist(host, selector) {
       const on = tab === next;
       tab.setAttribute('aria-selected', String(on));
       tab.tabIndex = on ? 0 : -1;
-      document.getElementById(tab.getAttribute('aria-controls')).hidden = !on;
+      // A tab whose panel is missing would otherwise throw here and abort the
+      // loop, leaving every remaining tab stuck in its previous state.
+      const panel = document.getElementById(tab.getAttribute('aria-controls'));
+      if (panel) panel.hidden = !on;
     });
   };
 
@@ -410,26 +428,56 @@ function wireTablist(host, selector) {
   });
 }
 
+/** One pending reset timer per button, so a re-click cancels its predecessor. */
+const copyTimers = new WeakMap();
+
+/**
+ * Speak a message through the polite live region in index.html.
+ *
+ * The region is cleared first: repeating the identical string is not treated
+ * as a change, so copying twice in a row would otherwise be announced once.
+ */
+function announce(message) {
+  const region = document.querySelector('[data-copy-status]');
+  if (!region) return;
+  region.textContent = '';
+  requestAnimationFrame(() => {
+    region.textContent = message;
+  });
+}
+
 function wireCopyButtons() {
   document.addEventListener('click', async (event) => {
     const button = event.target.closest('button.copy[data-copy]');
     if (!button) return;
 
-    const original = button.textContent;
+    // Remember the resting label once, on the first click. Reading textContent
+    // on every click meant a second click during the 1600 ms window captured
+    // "Copied" as the label to restore, and the button never recovered.
+    if (button.dataset.label === undefined) button.dataset.label = button.textContent;
+    clearTimeout(copyTimers.get(button));
+
+    let message;
     try {
       await navigator.clipboard.writeText(button.dataset.copy);
       button.dataset.copied = 'true';
       button.textContent = 'Copied';
+      message = 'Copied to clipboard';
     } catch {
       // Clipboard is unavailable over file:// in some browsers; say so rather
       // than showing a success state that did not happen.
       button.textContent = 'Copy failed';
+      message = 'Copy failed — the clipboard is unavailable in this context';
     }
+    announce(message);
 
-    setTimeout(() => {
-      button.textContent = original;
-      delete button.dataset.copied;
-    }, 1600);
+    copyTimers.set(
+      button,
+      setTimeout(() => {
+        button.textContent = button.dataset.label;
+        delete button.dataset.copied;
+      }, 1600),
+    );
   });
 }
 
@@ -456,7 +504,14 @@ function wireReveals() {
   targets.forEach((node) => observer.observe(node));
 }
 
-/** Underline the nav link for whichever section currently owns the viewport. */
+/**
+ * Underline the nav link for whichever section currently owns the viewport.
+ *
+ * The detection band is short but not infinitely thin, so two adjacent
+ * sections can straddle it at once. Rather than highlight both, keep the set
+ * of intersecting sections and mark only the topmost — the one the reader has
+ * most recently arrived at.
+ */
 function wireNavHighlight() {
   const links = new Map(
     [...document.querySelectorAll('.masthead nav a')].map((a) => [a.getAttribute('href').slice(1), a]),
@@ -466,14 +521,26 @@ function wireNavHighlight() {
     .filter(Boolean);
   if (!sections.length || !('IntersectionObserver' in window)) return;
 
+  const visible = new Set();
+
+  const paint = () => {
+    const active = sections.find((section) => visible.has(section));
+    links.forEach((link, id) => {
+      link.classList.toggle('is-current', Boolean(active) && active.id === id);
+      // aria-current is what tells a screen-reader user where they are; the
+      // underline alone conveys it to sighted users only.
+      if (active && active.id === id) link.setAttribute('aria-current', 'true');
+      else link.removeAttribute('aria-current');
+    });
+  };
+
   const observer = new IntersectionObserver(
     (entries) => {
       entries.forEach((entry) => {
-        const link = links.get(entry.target.id);
-        if (!link) return;
-        link.style.color = entry.isIntersecting ? 'var(--ink)' : '';
-        link.style.borderBottomColor = entry.isIntersecting ? 'var(--rule-strong)' : '';
+        if (entry.isIntersecting) visible.add(entry.target);
+        else visible.delete(entry.target);
       });
+      paint();
     },
     { rootMargin: '-20% 0px -70% 0px' },
   );

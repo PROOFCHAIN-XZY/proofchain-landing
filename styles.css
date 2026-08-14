@@ -316,7 +316,8 @@ section {
   transition: color var(--duration) var(--ease), border-color var(--duration) var(--ease);
 }
 
-.masthead nav a:hover {
+.masthead nav a:hover,
+.masthead nav a.is-current {
   color: var(--ink);
   border-bottom-color: var(--rule-strong);
 }
@@ -337,6 +338,23 @@ section {
  * Skip link. Hidden until focused, then it lands as a real, visible control —
  * a skip link that stays invisible while focused is worse than none.
  */
+/*
+ * Visually hidden but still in the accessibility tree. Clipped rather than
+ * display:none or visibility:hidden, both of which remove the element from the
+ * tree entirely and would silence the live region.
+ */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
 .skip-link {
   position: absolute;
   top: 0.75rem;
@@ -1011,6 +1029,13 @@ section {
   color: var(--ink);
 }
 
+/* A check with two possible outcomes carries two badges, kept on one line. */
+.check__verdicts {
+  display: flex;
+  flex-shrink: 0;
+  gap: 0.3rem;
+}
+
 .check__verdict {
   font-family: var(--mono);
   font-size: 0.62rem;
@@ -1080,72 +1105,6 @@ section {
   color: var(--ink);
   border-color: var(--rule-strong);
   background: var(--surface);
-}
-
-/* ── Architecture diagram ──────────────────────────────────────────── */
-
-.diagram {
-  border: 1px solid var(--rule);
-  background: var(--surface);
-  padding: clamp(1rem, 3vw, 2rem);
-  overflow-x: auto;
-}
-
-.diagram svg {
-  display: block;
-  min-width: 40rem;
-  width: 100%;
-  height: auto;
-  color: var(--ink);
-}
-
-.diagram .d-box {
-  fill: var(--paper);
-  stroke: var(--rule-strong);
-  stroke-width: 1;
-}
-
-.diagram .d-box--chain {
-  fill: var(--verified-bg);
-  stroke: var(--verified);
-}
-
-.diagram .d-title {
-  fill: var(--ink);
-  font-family: var(--sans);
-  font-size: 13px;
-}
-
-.diagram .d-sub {
-  fill: var(--ink-faint);
-  font-family: var(--mono);
-  font-size: 10px;
-}
-
-.diagram .d-edge {
-  stroke: var(--ink-faint);
-  stroke-width: 1;
-  fill: none;
-}
-
-.diagram .d-edge--proof {
-  stroke: var(--verified);
-  stroke-dasharray: 4 3;
-}
-
-/*
- * Edge labels sit on top of connector lines, so they carry a halo in the
- * surface colour — drawn stroke-first so the outline stays behind the glyph.
- * Without it the mono text and the 1px edges shred each other.
- */
-.diagram .d-label {
-  fill: var(--ink-faint);
-  font-family: var(--mono);
-  font-size: 9.5px;
-  paint-order: stroke fill;
-  stroke: var(--surface);
-  stroke-width: 3.5px;
-  stroke-linejoin: round;
 }
 
 /* ── Scope ledger ──────────────────────────────────────────────────── */
@@ -1306,6 +1265,26 @@ footer {
   justify-content: space-between;
   font-size: 0.8125rem;
   color: var(--ink-faint);
+}
+
+/* ── No-JavaScript fallback ────────────────────────────────────────── */
+
+/*
+ * Three sections are rendered entirely from data in main.js. Without JS they
+ * are empty, so each carries a <noscript> note pointing at the repo docs that
+ * hold the same material. Styled as a hairline aside, not an error banner:
+ * nothing has gone wrong, the page is simply deferring to a better source.
+ */
+.fallback {
+  border-inline-start: 2px solid var(--rule-strong);
+  padding: 0.9rem 0 0.9rem 1rem;
+  max-width: 46rem;
+  color: var(--ink-soft);
+  font-size: 0.9375rem;
+}
+
+.fallback a {
+  color: var(--ink);
 }
 
 /* ── Reveal motion ─────────────────────────────────────────────────── */

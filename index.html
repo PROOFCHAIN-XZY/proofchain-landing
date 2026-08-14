@@ -8,22 +8,45 @@
       name="description"
       content="Every weigh-in is signed on-device, checked for integrity, sealed into a Merkle batch, and anchored on the Stellar ledger. Credit buyers verify the tonne themselves — no trust in us required."
     />
+    <link rel="canonical" href="https://proofchain-xzy.github.io/proofchain-landing/" />
     <meta name="color-scheme" content="light dark" />
     <meta name="theme-color" content="#fbfaf7" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#101113" media="(prefers-color-scheme: dark)" />
 
     <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://proofchain-xzy.github.io/proofchain-landing/" />
+    <meta property="og:site_name" content="ProofChain" />
+    <meta property="og:locale" content="en_GB" />
     <meta property="og:title" content="ProofChain — verified waste-to-credit on Stellar" />
     <meta
       property="og:description"
       content="A plastic credit is worth $140–800 per tonne. That is a direct financial incentive to spoof weigh-ins. ProofChain makes the tonne independently verifiable."
     />
+    <!-- Absolute, because most crawlers do not resolve relative og:image. -->
+    <meta
+      property="og:image"
+      content="https://proofchain-xzy.github.io/proofchain-landing/assets/og.png"
+    />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta
+      property="og:image:alt"
+      content="ProofChain — a tonne of plastic you can verify yourself. The card shows the anchor receipt: transaction 3fb0f496…dc512f, ledger 4033690, 100 stroops, memo hash equal to the sealed Merkle root."
+    />
+
     <meta name="twitter:card" content="summary_large_image" />
+    <meta
+      name="twitter:image"
+      content="https://proofchain-xzy.github.io/proofchain-landing/assets/og.png"
+    />
 
     <link
       rel="icon"
       href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='26' font-size='26'>%F0%9F%94%97</text></svg>"
     />
+    <link rel="apple-touch-icon" href="assets/apple-touch-icon.png" />
+    <link rel="manifest" href="site.webmanifest" />
     <!--
       Type: Newsreader (news serif, long-form argument), Public Sans (the US
       public-records typeface), JetBrains Mono (true tabular figures for hashes).
@@ -32,15 +55,39 @@
     -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <!-- Our own stylesheet first: it is same-origin and it alone decides the
+         layout, so it should never queue behind a third-party request. -->
+    <link rel="stylesheet" href="styles.css" />
+
+    <!--
+      The webfont sheet is fetched at a non-blocking priority and promoted to
+      all media once it lands. Every family has a system fallback in styles.css
+      and the request already carries display=swap, so the page renders
+      immediately in the fallback stack and reflows to Newsreader / Public Sans
+      / JetBrains Mono when they arrive — rather than holding first paint on a
+      cross-origin round trip.
+    -->
     <link
       rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400;1,6..72,500&family=Public+Sans:wght@300;400;500;600&display=swap"
+      media="print"
+      onload="this.media='all'; this.onload=null"
     />
-    <link rel="stylesheet" href="styles.css" />
+    <noscript>
+      <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400;1,6..72,500&family=Public+Sans:wght@300;400;500;600&display=swap"
+      />
+    </noscript>
   </head>
 
   <body>
     <a href="#main" class="skip-link">Skip to content</a>
+
+    <!-- Copy buttons swap their own label, which is not reliably announced.
+         main.js mirrors the result here so it is spoken either way. -->
+    <p class="sr-only" role="status" aria-live="polite" data-copy-status></p>
 
     <!-- ── Masthead ─────────────────────────────────────────────────── -->
     <header class="masthead">
@@ -242,6 +289,18 @@
             <div class="steps" role="tablist" aria-label="Pipeline stages" data-steps></div>
             <div data-panels></div>
           </div>
+
+          <noscript>
+            <p class="fallback">
+              The stepper needs JavaScript. The same six stages — capture, ingest, integrity,
+              batch, anchor, report — are written out in full, with the real record at each one, in
+              <a
+                href="https://github.com/PROOFCHAIN-XZY/proofchain/blob/main/docs/architecture.md"
+                rel="noopener"
+                >docs/architecture.md</a
+              >.
+            </p>
+          </noscript>
         </div>
       </section>
 
@@ -259,6 +318,23 @@
           </div>
 
           <div class="checks" data-checks></div>
+
+          <noscript>
+            <p class="fallback">
+              The seven checks are listed by JavaScript. Without it, read them — and the reasoning
+              behind each verdict — in
+              <a
+                href="https://github.com/PROOFCHAIN-XZY/proofchain/blob/main/docs/architecture.md"
+                rel="noopener"
+                >docs/architecture.md</a
+              >, or read the implementation directly in
+              <a
+                href="https://github.com/PROOFCHAIN-XZY/proofchain/blob/main/apps/backend/src/events/integrity.ts"
+                rel="noopener"
+                >events/integrity.ts</a
+              >.
+            </p>
+          </noscript>
         </div>
       </section>
 
@@ -278,8 +354,26 @@
 
           <!-- The four tabs are the four steps; a parallel numbered list beside them
                said the same thing twice and doubled the section's height. -->
-          <div class="tabs" role="tablist" aria-label="Verification commands" data-tabs></div>
+          <div
+            class="tabs"
+            role="tablist"
+            aria-label="Verification commands"
+            aria-orientation="horizontal"
+            data-tabs
+          ></div>
           <div data-terminals></div>
+
+          <noscript>
+            <p class="fallback">
+              The four commands are rendered by JavaScript. They are reproduced verbatim, with
+              expected output, in
+              <a
+                href="https://github.com/PROOFCHAIN-XZY/proofchain/blob/main/docs/verification.md"
+                rel="noopener"
+                >docs/verification.md</a
+              >. Verification never depended on this page — that is the point of it.
+            </p>
+          </noscript>
 
           <p class="hairline-note">
             Four passes and the tonne stands on its own. Fail any one of them and you should reject
@@ -413,7 +507,7 @@
                 />
               </svg>
             </a>
-            <a class="btn btn--ghost" href="https://github.com/victorisiguzoruzoma874/proofchain/blob/main/docs/verification.md" rel="noopener"
+            <a class="btn btn--ghost" href="https://github.com/PROOFCHAIN-XZY/proofchain/blob/main/docs/verification.md" rel="noopener"
               >Read the verification guide</a
             >
           </div>
@@ -445,10 +539,10 @@
           <div>
             <h4>Documentation</h4>
             <ul>
-              <li><a href="https://github.com/victorisiguzoruzoma874/proofchain/blob/main/README.md" rel="noopener">README</a></li>
-              <li><a href="https://github.com/victorisiguzoruzoma874/proofchain/blob/main/docs/verification.md" rel="noopener">Verification guide</a></li>
-              <li><a href="https://github.com/victorisiguzoruzoma874/proofchain/blob/main/docs/architecture.md" rel="noopener">Architecture</a></li>
-              <li><a href="https://github.com/victorisiguzoruzoma874/proofchain/blob/main/docs/runbook.md" rel="noopener">Runbook</a></li>
+              <li><a href="https://github.com/PROOFCHAIN-XZY/proofchain/blob/main/README.md" rel="noopener">README</a></li>
+              <li><a href="https://github.com/PROOFCHAIN-XZY/proofchain/blob/main/docs/verification.md" rel="noopener">Verification guide</a></li>
+              <li><a href="https://github.com/PROOFCHAIN-XZY/proofchain/blob/main/docs/architecture.md" rel="noopener">Architecture</a></li>
+              <li><a href="https://github.com/PROOFCHAIN-XZY/proofchain/blob/main/docs/runbook.md" rel="noopener">Runbook</a></li>
             </ul>
           </div>
 
@@ -484,6 +578,35 @@
         </div>
       </div>
     </footer>
+
+    <!--
+      Structured data. Modelled as SoftwareSourceCode rather than Product or
+      Organization: this page describes a testnet pilot codebase, not something
+      on sale and not a company. Claiming otherwise in machine-readable form
+      would be the same overstatement the Scope section exists to avoid.
+    -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareSourceCode",
+        "name": "ProofChain",
+        "description": "Verified waste-to-credit infrastructure on Stellar. Weigh-ins are signed on-device, checked by seven integrity checks at ingest, sealed into a Merkle batch, and anchored on the Stellar ledger so a credit buyer can recompute the tonne without trusting the operator.",
+        "url": "https://proofchain-xzy.github.io/proofchain-landing/",
+        "codeRepository": "https://github.com/PROOFCHAIN-XZY/proofchain",
+        "programmingLanguage": "TypeScript",
+        "license": "https://opensource.org/licenses/MIT",
+        "applicationCategory": "DeveloperApplication",
+        "keywords": [
+          "waste credits",
+          "plastic credits",
+          "Stellar",
+          "Merkle proof",
+          "ed25519",
+          "verifiable supply chain"
+        ],
+        "image": "https://proofchain-xzy.github.io/proofchain-landing/assets/og.png"
+      }
+    </script>
 
     <script src="main.js" defer></script>
   </body>
