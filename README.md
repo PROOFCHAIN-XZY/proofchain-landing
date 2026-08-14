@@ -1,9 +1,9 @@
 # ProofChain — landing page
 
-Static landing page for [ProofChain](https://github.com/victorisiguzoruzoma874/proofchain),
+Static landing page for [ProofChain](https://github.com/PROOFCHAIN-XZY/proofchain),
 a verified waste-to-credit platform on Stellar.
 
-**Live:** https://victorisiguzoruzoma874.github.io/proofchain-landing/
+**Live:** https://proofchain-xzy.github.io/proofchain-landing/
 
 No build step, no dependencies, no framework — three files and a licence.
 
