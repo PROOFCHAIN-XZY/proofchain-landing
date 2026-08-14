@@ -476,7 +476,14 @@ function wireReveals() {
   targets.forEach((node) => observer.observe(node));
 }
 
-/** Underline the nav link for whichever section currently owns the viewport. */
+/**
+ * Underline the nav link for whichever section currently owns the viewport.
+ *
+ * The detection band is short but not infinitely thin, so two adjacent
+ * sections can straddle it at once. Rather than highlight both, keep the set
+ * of intersecting sections and mark only the topmost — the one the reader has
+ * most recently arrived at.
+ */
 function wireNavHighlight() {
   const links = new Map(
     [...document.querySelectorAll('.masthead nav a')].map((a) => [a.getAttribute('href').slice(1), a]),
@@ -486,14 +493,26 @@ function wireNavHighlight() {
     .filter(Boolean);
   if (!sections.length || !('IntersectionObserver' in window)) return;
 
+  const visible = new Set();
+
+  const paint = () => {
+    const active = sections.find((section) => visible.has(section));
+    links.forEach((link, id) => {
+      link.classList.toggle('is-current', Boolean(active) && active.id === id);
+      // aria-current is what tells a screen-reader user where they are; the
+      // underline alone conveys it to sighted users only.
+      if (active && active.id === id) link.setAttribute('aria-current', 'true');
+      else link.removeAttribute('aria-current');
+    });
+  };
+
   const observer = new IntersectionObserver(
     (entries) => {
       entries.forEach((entry) => {
-        const link = links.get(entry.target.id);
-        if (!link) return;
-        link.style.color = entry.isIntersecting ? 'var(--ink)' : '';
-        link.style.borderBottomColor = entry.isIntersecting ? 'var(--rule-strong)' : '';
+        if (entry.isIntersecting) visible.add(entry.target);
+        else visible.delete(entry.target);
       });
+      paint();
     },
     { rootMargin: '-20% 0px -70% 0px' },
   );

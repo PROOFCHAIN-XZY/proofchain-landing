@@ -316,7 +316,8 @@ section {
   transition: color var(--duration) var(--ease), border-color var(--duration) var(--ease);
 }
 
-.masthead nav a:hover {
+.masthead nav a:hover,
+.masthead nav a.is-current {
   color: var(--ink);
   border-bottom-color: var(--rule-strong);
 }
