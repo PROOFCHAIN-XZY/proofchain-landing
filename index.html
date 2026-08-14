@@ -11,7 +11,7 @@
     <link rel="canonical" href="https://proofchain-xzy.github.io/proofchain-landing/" />
     <meta name="color-scheme" content="light dark" />
     <meta name="theme-color" content="#fbfaf7" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#101113" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#0d1117" media="(prefers-color-scheme: dark)" />
 
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://proofchain-xzy.github.io/proofchain-landing/" />
@@ -56,8 +56,6 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 
-    <!-- Our own stylesheet first: it is same-origin and it alone decides the
-         layout, so it should never queue behind a third-party request. -->
     <!--
       Applied before the stylesheet so a reader who chose a theme never sees
       the other one flash first. Inline and synchronous by necessity: any
@@ -77,6 +75,8 @@
       }
     </script>
 
+    <!-- Our own stylesheet first: it is same-origin and it alone decides the
+         layout, so it should never queue behind a third-party request. -->
     <link rel="stylesheet" href="styles.css" />
 
     <!--
@@ -215,7 +215,19 @@
               <a class="btn btn--ghost" href="#verify">How verification works</a>
             </div>
 
-            <dl class="hero__stats" data-lift style="--lift-order: 4">
+            <!--
+              The reference's "Built on Stellar" trust signal, set typographically.
+              No Stellar wordmark: this repository holds no licensed brand asset,
+              and a redrawn approximation is trademark misuse dressed as polish.
+              The network facts carry more weight than a logo would anyway.
+            -->
+            <p class="built" data-lift style="--lift-order: 4">
+              <span class="built__label">Built on</span>
+              <a class="built__name" href="https://stellar.org" rel="noopener">Stellar</a>
+              <span class="built__detail">classic layer · testnet · 100 stroops per anchor</span>
+            </p>
+
+            <dl class="hero__stats" data-lift style="--lift-order: 5">
               <div class="stat">
                 <dt>Integrity checks at ingest</dt>
                 <dd>7</dd>
@@ -236,7 +248,7 @@
           </div>
 
           <!-- The proof, up front. These are real values from a live testnet run. -->
-          <div class="hero__proof" data-lift style="--lift-order: 5">
+          <div class="hero__proof" data-lift style="--lift-order: 6">
           <aside class="receipt" aria-labelledby="receipt-title">
             <div class="receipt__head">
               <span class="receipt__title" id="receipt-title">Anchor receipt — batch sealed</span>

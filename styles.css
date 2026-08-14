@@ -699,6 +699,45 @@ section {
   margin-top: 2.25rem;
 }
 
+/*
+ * "Built on Stellar", set typographically. The reference pairs the phrase with
+ * a Stellar wordmark; this repository holds no licensed brand asset, and a
+ * redrawn approximation is trademark misuse dressed up as polish. The network
+ * facts beside the name do more work than a logo would in any case.
+ */
+.built {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.4rem 0.6rem;
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--rule-soft);
+  max-width: var(--prose);
+}
+
+.built__label {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.built__name {
+  font-family: var(--serif);
+  font-size: 1.0625rem;
+  color: var(--ink);
+  text-decoration-color: var(--rule);
+}
+
+.built__detail {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.04em;
+  color: var(--ink-faint);
+}
+
 /* Two-up on phones, four-up from tablet — fixed rather than auto-fit, so a long
    label can never push the row into an orphaned fourth column. */
 .hero__stats {
