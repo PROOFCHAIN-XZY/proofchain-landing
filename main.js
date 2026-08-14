@@ -416,12 +416,20 @@ function wireTablist(host, selector) {
   });
 }
 
+/** One pending reset timer per button, so a re-click cancels its predecessor. */
+const copyTimers = new WeakMap();
+
 function wireCopyButtons() {
   document.addEventListener('click', async (event) => {
     const button = event.target.closest('button.copy[data-copy]');
     if (!button) return;
 
-    const original = button.textContent;
+    // Remember the resting label once, on the first click. Reading textContent
+    // on every click meant a second click during the 1600 ms window captured
+    // "Copied" as the label to restore, and the button never recovered.
+    if (button.dataset.label === undefined) button.dataset.label = button.textContent;
+    clearTimeout(copyTimers.get(button));
+
     try {
       await navigator.clipboard.writeText(button.dataset.copy);
       button.dataset.copied = 'true';
@@ -432,10 +440,13 @@ function wireCopyButtons() {
       button.textContent = 'Copy failed';
     }
 
-    setTimeout(() => {
-      button.textContent = original;
-      delete button.dataset.copied;
-    }, 1600);
+    copyTimers.set(
+      button,
+      setTimeout(() => {
+        button.textContent = button.dataset.label;
+        delete button.dataset.copied;
+      }, 1600),
+    );
   });
 }
 
