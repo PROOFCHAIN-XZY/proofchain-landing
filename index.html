@@ -246,6 +246,18 @@
             <div class="steps" role="tablist" aria-label="Pipeline stages" data-steps></div>
             <div data-panels></div>
           </div>
+
+          <noscript>
+            <p class="fallback">
+              The stepper needs JavaScript. The same six stages — capture, ingest, integrity,
+              batch, anchor, report — are written out in full, with the real record at each one, in
+              <a
+                href="https://github.com/PROOFCHAIN-XZY/proofchain/blob/main/docs/architecture.md"
+                rel="noopener"
+                >docs/architecture.md</a
+              >.
+            </p>
+          </noscript>
         </div>
       </section>
 
@@ -263,6 +275,23 @@
           </div>
 
           <div class="checks" data-checks></div>
+
+          <noscript>
+            <p class="fallback">
+              The seven checks are listed by JavaScript. Without it, read them — and the reasoning
+              behind each verdict — in
+              <a
+                href="https://github.com/PROOFCHAIN-XZY/proofchain/blob/main/docs/architecture.md"
+                rel="noopener"
+                >docs/architecture.md</a
+              >, or read the implementation directly in
+              <a
+                href="https://github.com/PROOFCHAIN-XZY/proofchain/blob/main/apps/backend/src/events/integrity.ts"
+                rel="noopener"
+                >events/integrity.ts</a
+              >.
+            </p>
+          </noscript>
         </div>
       </section>
 
@@ -290,6 +319,18 @@
             data-tabs
           ></div>
           <div data-terminals></div>
+
+          <noscript>
+            <p class="fallback">
+              The four commands are rendered by JavaScript. They are reproduced verbatim, with
+              expected output, in
+              <a
+                href="https://github.com/PROOFCHAIN-XZY/proofchain/blob/main/docs/verification.md"
+                rel="noopener"
+                >docs/verification.md</a
+              >. Verification never depended on this page — that is the point of it.
+            </p>
+          </noscript>
 
           <p class="hairline-note">
             Four passes and the tonne stands on its own. Fail any one of them and you should reject

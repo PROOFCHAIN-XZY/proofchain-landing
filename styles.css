@@ -1333,6 +1333,26 @@ footer {
   color: var(--ink-faint);
 }
 
+/* ── No-JavaScript fallback ────────────────────────────────────────── */
+
+/*
+ * Three sections are rendered entirely from data in main.js. Without JS they
+ * are empty, so each carries a <noscript> note pointing at the repo docs that
+ * hold the same material. Styled as a hairline aside, not an error banner:
+ * nothing has gone wrong, the page is simply deferring to a better source.
+ */
+.fallback {
+  border-inline-start: 2px solid var(--rule-strong);
+  padding: 0.9rem 0 0.9rem 1rem;
+  max-width: 46rem;
+  color: var(--ink-soft);
+  font-size: 0.9375rem;
+}
+
+.fallback a {
+  color: var(--ink);
+}
+
 /* ── Reveal motion ─────────────────────────────────────────────────── */
 
 /*
