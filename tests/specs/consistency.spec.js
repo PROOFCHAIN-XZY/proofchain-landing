@@ -103,6 +103,34 @@ test('the social card is the size its metadata promises', () => {
   expect(html).toContain('property="og:image:height" content="630"');
 });
 
+test('the deploy strips everything that is not the site', () => {
+  // The Pages job removes these before uploading. If a directory is added to
+  // the repo root and not to that list, it ships — and docs/ was added after
+  // the workflow was written, which is exactly how that happens.
+  const workflow = read('.github/workflows/ci.yml');
+  const stripped = workflow.match(/rm -rf ([^\n]+)/)?.[1].split(/\s+/) ?? [];
+
+  for (const directory of ['tests', 'scripts', 'docs', '.github', '.cache']) {
+    expect(stripped, `${directory}/ should not be published`).toContain(directory);
+  }
+});
+
+test('every JavaScript-rendered section has a fallback', () => {
+  const html = read('index.html');
+
+  // Each host element is filled by main.js and is empty without it. Every one
+  // needs a <noscript> in the same section, or that section silently
+  // disappears for a reader with scripting off.
+  const hosts = ['data-summary', 'data-chain', 'data-steps', 'data-checks', 'data-tabs'];
+  for (const host of hosts) {
+    expect(html, `${host} should exist`).toContain(host);
+  }
+
+  const noscripts = html.match(/<noscript>/g) ?? [];
+  // One per rendered section, plus the webfont link in <head>.
+  expect(noscripts.length).toBeGreaterThanOrEqual(4);
+});
+
 test('the integrity check list matches the upstream implementation', () => {
   // The seven names as they appear in apps/backend/src/events/integrity.ts.
   // If the backend adds, removes or renames a check, this page is overstating
