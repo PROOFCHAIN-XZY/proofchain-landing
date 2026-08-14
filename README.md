@@ -162,7 +162,7 @@ passes.
 cd tests
 npm install
 npx playwright install chromium
-npx playwright test              # 165 checks, ~30s
+npx playwright test              # 170 checks, ~35s
 ```
 
 The suite has its own `package.json` so the published site stays
