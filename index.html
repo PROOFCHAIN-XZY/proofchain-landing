@@ -32,11 +32,31 @@
     -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <!-- Our own stylesheet first: it is same-origin and it alone decides the
+         layout, so it should never queue behind a third-party request. -->
+    <link rel="stylesheet" href="styles.css" />
+
+    <!--
+      The webfont sheet is fetched at a non-blocking priority and promoted to
+      all media once it lands. Every family has a system fallback in styles.css
+      and the request already carries display=swap, so the page renders
+      immediately in the fallback stack and reflows to Newsreader / Public Sans
+      / JetBrains Mono when they arrive — rather than holding first paint on a
+      cross-origin round trip.
+    -->
     <link
       rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400;1,6..72,500&family=Public+Sans:wght@300;400;500;600&display=swap"
+      media="print"
+      onload="this.media='all'; this.onload=null"
     />
-    <link rel="stylesheet" href="styles.css" />
+    <noscript>
+      <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400;1,6..72,500&family=Public+Sans:wght@300;400;500;600&display=swap"
+      />
+    </noscript>
   </head>
 
   <body>
