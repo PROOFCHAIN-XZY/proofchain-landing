@@ -216,8 +216,8 @@ const CHAIN = [
   {
     step: 'Reconciled',
     where: 'in custody',
-    label: 'weight in → out',
-    value: '125.300 → 125.300',
+    label: 'reconciled gap',
+    value: '0.000 kg',
     note: 'a gap must carry a stated reason to be written at all',
     link: 'batched',
   },
@@ -233,7 +233,7 @@ const CHAIN = [
     step: 'On the ledger',
     where: 'stellar testnet',
     label: 'transaction',
-    value: `${TX.slice(0, 8)}…${TX.slice(-6)}`,
+    value: `${TX.slice(0, 6)}…${TX.slice(-4)}`,
     note: 'ledger 4033690, memo hash = the sealed root',
     href: `https://stellar.expert/explorer/testnet/tx/${TX}`,
     link: 'published',
@@ -242,7 +242,7 @@ const CHAIN = [
     step: 'Audit-ready',
     where: 'public report',
     label: 'endpoint',
-    value: '/batches/:id/report',
+    value: 'GET /report',
     note: 'events, proofs, reconciliation — no account required',
   },
 ];
