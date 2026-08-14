@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  One page, so one entry. Listed anyway: it is what robots.txt points at, and
+  it carries the lastmod date, which is the only signal a crawler gets that
+  the anchor receipt on the page has been refreshed.
+-->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://proofchain-xzy.github.io/proofchain-landing/</loc>
+    <lastmod>2026-08-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>1.0</priority>
+  </url>
+</urlset>
