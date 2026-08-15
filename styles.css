@@ -929,12 +929,14 @@ section {
  * is the point of hit-testing that requirement instead of measuring it.
  */
 .built__name,
-a.chain__value {
+a.chain__value,
+.merkle__source {
   position: relative;
 }
 
 .built__name::after,
-a.chain__value::after {
+a.chain__value::after,
+.merkle__source::after {
   content: "";
   position: absolute;
   left: 0;
