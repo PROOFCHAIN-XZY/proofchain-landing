@@ -8,21 +8,23 @@ import { expect, test } from '@playwright/test';
  * pin the parts that are easy to break by accident.
  */
 
-test('the chain shows four states in order', async ({ page }) => {
+test('the chain shows six states in order', async ({ page }) => {
   await page.goto('/', { waitUntil: 'domcontentloaded' });
 
   const nodes = page.locator('.chain__node');
-  await expect(nodes).toHaveCount(4);
+  await expect(nodes).toHaveCount(6);
 
   // An ordered list, because the sequence is the argument. A row of divs would
-  // read to a screen reader as four unrelated cards.
+  // read to a screen reader as six unrelated cards.
   await expect(page.locator('ol.chain')).toHaveCount(1);
 
   await expect(page.locator('.chain__step')).toHaveText([
     /Signed/,
     /Checked/,
+    /Reconciled/,
     /Sealed/,
     /On the ledger/,
+    /Audit-ready/,
   ]);
 });
 
@@ -32,7 +34,7 @@ test('every chain value is real, and the last one is checkable', async ({ page }
   // The values must agree with the hero receipt: both describe the same run,
   // and a diagram carrying different numbers from the receipt beside it would
   // discredit the page more effectively than having no diagram.
-  await expect(page.locator('.chain__value').nth(2)).toHaveText('e1a4…7f30');
+  await expect(page.locator('.chain__value').nth(3)).toHaveText('e1a4…7f30');
 
   const anchor = page.locator('a.chain__value');
   await expect(anchor).toHaveCount(1);
@@ -46,8 +48,14 @@ test('the connectors name the operation and stay out of the reading order', asyn
   await page.goto('/', { waitUntil: 'domcontentloaded' });
 
   const links = page.locator('.chain__link');
-  await expect(links).toHaveCount(3); // between four nodes, never after the last
-  await expect(links).toHaveText([/submitted/i, /batched/i, /anchored/i]);
+  await expect(links).toHaveCount(5); // between six nodes, never after the last
+  await expect(links).toHaveText([
+    /submitted/i,
+    /transferred/i,
+    /batched/i,
+    /anchored/i,
+    /published/i,
+  ]);
 
   // Decorative: the operation names are already implied by the states either
   // side, so announcing them again would pad the list with noise.

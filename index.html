@@ -473,6 +473,35 @@
             Four passes and the tonne stands on its own. Fail any one of them and you should reject
             the batch — including if we tell you otherwise.
           </p>
+
+          <!-- Recomputing the root is the page's central invitation, and it is
+               impossible without these three rules and the ordering. -->
+          <div class="merkle">
+            <div class="section-head section-head--tight">
+              <h2>How the tree is built.</h2>
+              <p>
+                Three deliberate departures from the naive Merkle tree, plus the ordering that
+                makes the result reproducible — each stated with the attack it stops. Implemented in
+                <a
+                  class="merkle__source"
+                  href="https://github.com/PROOFCHAIN-XZY/proofchain/blob/main/packages/shared/src/merkle.ts"
+                  rel="noopener"
+                  >packages/shared/src/merkle.ts</a
+                >.
+              </p>
+            </div>
+
+            <div class="merkle__grid" data-merkle></div>
+
+            <noscript>
+              <p class="fallback">
+                Leaves are <code>sha256(0x00 ‖ payloadHash)</code> and internal nodes are
+                <code>sha256(0x01 ‖ left ‖ right)</code>. Siblings are combined left-then-right,
+                a lone node at a level is promoted unchanged rather than duplicated, and events are
+                ordered by <code>capturedAt ASC, id ASC</code>.
+              </p>
+            </noscript>
+          </div>
         </div>
       </section>
 

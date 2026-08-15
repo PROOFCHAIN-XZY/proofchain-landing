@@ -211,6 +211,14 @@ const CHAIN = [
     label: 'integrity verdict',
     value: '7 / 7 pass',
     note: 'any fail quarantines permanently',
+    link: 'transferred',
+  },
+  {
+    step: 'Reconciled',
+    where: 'in custody',
+    label: 'reconciled gap',
+    value: '0.000 kg',
+    note: 'a gap must carry a stated reason to be written at all',
     link: 'batched',
   },
   {
@@ -225,9 +233,17 @@ const CHAIN = [
     step: 'On the ledger',
     where: 'stellar testnet',
     label: 'transaction',
-    value: `${TX.slice(0, 8)}…${TX.slice(-6)}`,
+    value: `${TX.slice(0, 6)}…${TX.slice(-4)}`,
     note: 'ledger 4033690, memo hash = the sealed root',
     href: `https://stellar.expert/explorer/testnet/tx/${TX}`,
+    link: 'published',
+  },
+  {
+    step: 'Audit-ready',
+    where: 'public report',
+    label: 'endpoint',
+    value: 'GET /report',
+    note: 'events, proofs, reconciliation — no account required',
   },
 ];
 
@@ -268,6 +284,45 @@ const SUMMARY = [
     title: 'Checkable by anyone',
     note: 'public report, no account, no rate limit',
     icon: '<circle cx="11" cy="11" r="6.4"/><path d="M15.8 15.8 20.4 20.4"/>',
+  },
+];
+
+/*
+ * How the tree is built.
+ *
+ * The page has always told a reader to recompute the root, and never told them
+ * how — no leaf rule, no node rule, no ordering. Those three facts are exactly
+ * what recomputation requires, so without them the central invitation of the
+ * page could not actually be taken up.
+ *
+ * Each rule is stated with the attack it stops, because all three are
+ * deviations from the naive Merkle tree and each deviation exists for a reason.
+ * Source: packages/shared/src/merkle.ts.
+ */
+const MERKLE = [
+  {
+    rule: 'Domain separation',
+    spec: 'leaf = sha256(0x00 ‖ payloadHash)\nnode = sha256(0x01 ‖ left ‖ right)',
+    stops:
+      'Presenting an internal node as if it were a leaf. Without distinct prefixes a 32-byte intermediate hash can be passed off as a weigh-in — the Merkle second-preimage attack.',
+  },
+  {
+    rule: 'Positional pairing',
+    spec: 'siblings combined left-then-right\neach proof step records its side',
+    stops:
+      'Reordering. Sorting the pair instead — the common shortcut — discards position, so a proof would verify against orderings the sealed batch never had.',
+  },
+  {
+    rule: 'Odd nodes promoted',
+    spec: 'a lone node at a level is carried up\nunchanged, never duplicated',
+    stops:
+      'The duplicate-last-node ambiguity, where two different trees produce one root. Known in Bitcoin as CVE-2012-2459.',
+  },
+  {
+    rule: 'Fixed ordering',
+    spec: 'events sorted by capturedAt ASC, id ASC',
+    stops:
+      'A root that depends on the order rows happened to come back in. Anyone recomputing from the report sorts the same way and gets the same tree.',
   },
 ];
 
@@ -417,6 +472,23 @@ function renderPipeline() {
     stepsHost.setAttribute('aria-orientation', wide.matches ? 'vertical' : 'horizontal');
   setOrientation();
   wide.addEventListener('change', setOrientation);
+}
+
+function renderMerkle() {
+  const host = document.querySelector('[data-merkle]');
+  if (!host) return;
+
+  MERKLE.forEach((item) => {
+    host.append(
+      el(`
+        <div class="merkle__rule reveal">
+          <h3 class="merkle__name">${item.rule}</h3>
+          <pre class="merkle__spec"><code>${item.spec}</code></pre>
+          <p class="merkle__stops"><b>Stops</b>${item.stops}</p>
+        </div>
+      `),
+    );
+  });
 }
 
 function renderSummary() {
@@ -804,6 +876,7 @@ function wireNavHighlight() {
   sections.forEach((section) => observer.observe(section));
 }
 
+renderMerkle();
 renderSummary();
 renderChain();
 renderPipeline();

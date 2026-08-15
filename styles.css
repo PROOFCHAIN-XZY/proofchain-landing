@@ -929,12 +929,14 @@ section {
  * is the point of hit-testing that requirement instead of measuring it.
  */
 .built__name,
-a.chain__value {
+a.chain__value,
+.merkle__source {
   position: relative;
 }
 
 .built__name::after,
-a.chain__value::after {
+a.chain__value::after,
+.merkle__source::after {
   content: "";
   position: absolute;
   left: 0;
@@ -1108,6 +1110,79 @@ a.chain__value::after {
   color: var(--ink-soft);
 }
 
+/* ── Merkle construction ───────────────────────────────────────────── */
+
+/*
+ * Set as a specification, not a feature grid. Each rule leads with the code
+ * that defines it — the hash expression is the authoritative statement and
+ * everything else is commentary on it — so the mono block sits above the prose
+ * rather than beside it.
+ */
+.merkle {
+  margin-top: clamp(3rem, 2rem + 4vw, 5rem);
+  padding-top: clamp(2.5rem, 1.5rem + 3vw, 4rem);
+  border-top: 1px solid var(--rule-strong);
+}
+
+.merkle__grid {
+  display: grid;
+  gap: 0;
+  border-top: 1px solid var(--rule);
+}
+
+@media (min-width: 52rem) {
+  .merkle__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: clamp(1.5rem, 4vw, 3.5rem);
+  }
+}
+
+.merkle__rule {
+  padding: 1.5rem 0;
+  border-bottom: 1px solid var(--rule);
+}
+
+.merkle__name {
+  font-family: var(--serif);
+  font-size: 1.125rem;
+  color: var(--ink);
+}
+
+/* The rule itself. Darker surface than the page so it reads as quoted code
+   rather than as a styled paragraph. */
+.merkle__spec {
+  margin: 0.85rem 0 0;
+  padding: 0.85rem 1rem;
+  overflow-x: auto;
+  background: var(--terminal-bg);
+  border: 1px solid var(--terminal-rule);
+}
+
+.merkle__spec code {
+  font-family: var(--mono);
+  font-size: 0.8125rem;
+  line-height: 1.7;
+  color: var(--terminal-ink);
+  white-space: pre;
+}
+
+.merkle__stops {
+  margin-top: 0.9rem;
+  font-size: 0.9375rem;
+  color: var(--ink-soft);
+}
+
+.merkle__stops b {
+  display: block;
+  margin-bottom: 0.25rem;
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  font-weight: 400;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--broken);
+}
+
 /* ── Chain of custody ──────────────────────────────────────────────── */
 
 /*
@@ -1181,7 +1256,14 @@ a.chain__value::after {
   font-family: var(--mono);
   font-size: 1rem;
   color: var(--ink);
-  word-break: break-all;
+  /*
+   * No break-all here. Every value in this row is already elided to a short
+   * form, so there is nothing long enough to need it — and with it set, the
+   * browser happily split "3fb0f496…dc512f" across two lines mid-hash, which
+   * for a value whose only job is to be compared against another copy of
+   * itself is worse than overflowing would have been.
+   */
+  overflow-wrap: break-word;
 }
 
 a.chain__value {
@@ -1242,15 +1324,18 @@ a.chain__value {
 }
 
 /*
- * Below 62rem the chain runs top to bottom: four panels side by side on a
- * phone would each be about 80px wide, and a Merkle root does not fit in 80px.
- * The vertical form is not a degraded fallback — a chain of custody reads
+ * Below 76rem the chain runs top to bottom. Six panels side by side need real
+ * width — at 1024px they would be about 150px each before the connectors take
+ * their share, and a Merkle root does not fit in that.
+ *
+ * The vertical form is not a degraded fallback. A chain of custody reads
  * perfectly well as a column, which is why there is no horizontal scroller
- * here the way there is on the stepper.
+ * here the way there is on the stepper; the breakpoint simply moved out when
+ * the chain grew from four states to six.
  */
-@media (min-width: 62rem) {
+@media (min-width: 76rem) {
   .chain {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(6, minmax(0, 1fr));
   }
 
   .chain__node {
@@ -1267,8 +1352,9 @@ a.chain__value {
 
   .chain__link {
     /* Vertical only on the label, so the connector below keeps a horizontal
-       writing mode and its physical insets stay physical. */
-    padding: 0 0.85rem;
+       writing mode and its physical insets stay physical. Tighter than the
+       four-node version: six columns leave less room between panels. */
+    padding: 0 0.6rem;
   }
 
   .chain__link::before {
@@ -1284,6 +1370,29 @@ a.chain__value {
   .chain__link span {
     writing-mode: vertical-rl;
     padding: 0.5rem 0.15rem;
+  }
+
+  /*
+   * Six columns inside a 74rem measure leave roughly 150px per card. At the
+   * base setting a truncated hash broke mid-token across two lines — "4c1f9ad0…e"
+   * then "88b" — which is worse than useless for a value whose whole job is to
+   * be compared against another copy of itself. Everything steps down together
+   * so the panels stay in proportion rather than just shrinking the one field.
+   */
+  .chain__card {
+    padding: 1rem 0.9rem 1.1rem;
+  }
+
+  .chain__value {
+    font-size: 0.875rem;
+  }
+
+  .chain__note {
+    font-size: 0.8125rem;
+  }
+
+  .chain__step {
+    font-size: 1rem;
   }
 }
 
