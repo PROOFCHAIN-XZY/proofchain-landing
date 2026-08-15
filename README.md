@@ -162,7 +162,7 @@ passes.
 cd tests
 npm install
 npx playwright install chromium
-npx playwright test              # 170 checks, ~35s
+npx playwright test              # 200 checks, ~40s
 ```
 
 The suite has its own `package.json` so the published site stays
@@ -178,7 +178,7 @@ wholesale under `prefers-color-scheme`. What is pinned:
 |-------|-------|
 | No horizontal overflow, at the document *and* the element level | `responsive.spec.js` |
 | Every interactive target reachable across 44 px, hit-tested not measured | `responsive.spec.js` |
-| All text passes WCAG AA in light **and** dark — 225 nodes per project | `a11y.spec.js` |
+| All text passes WCAG AA in light **and** dark — 299 nodes per project | `a11y.spec.js` |
 | Tablist keyboard semantics, and the orientation the stepper reports | `a11y.spec.js` |
 | `prefers-reduced-motion` leaves no content stuck at `opacity: 0` | `a11y.spec.js` |
 | No console errors; all six/seven/four sections actually render | `render.spec.js` |
@@ -187,6 +187,9 @@ wholesale under `prefers-color-scheme`. What is pinned:
 | One transaction hash across every file that cites one | `consistency.spec.js` |
 | No URL outside the canonical host; every referenced asset exists | `consistency.spec.js` |
 | The seven check names still match `events/integrity.ts` upstream | `consistency.spec.js` |
+| The four Merkle rules, their `0x00`/`0x01` prefixes and the exact sort | `evidence.spec.js` |
+| The custody chain still admits the reconciliation gap it reports | `evidence.spec.js` |
+| No figure from the marketing mockups reached `index.html` or `main.js` | `evidence.spec.js` |
 
 The two greys `--ink-faint` and `--terminal-faint` are tuned to sit just above
 the AA threshold and are the first things to break if the palette is nudged.
