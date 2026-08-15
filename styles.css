@@ -1025,6 +1025,95 @@ a.chain__value::after,
   color: var(--broken);
 }
 
+/* ── Evidence plates ───────────────────────────────────────────────── */
+
+/*
+ * Photography, treated the way a report treats a plate: numbered, captioned,
+ * hairline-bordered, and never bled to the edge. The page argues in prose and
+ * hashes; an image here is supporting exhibit, not atmosphere, so it is sized
+ * to sit beside the argument rather than under it.
+ *
+ * Both are renderings. The caption says so — the hero's "This is not an
+ * illustration" only means anything if the things that are illustrations
+ * admit it.
+ */
+.plates {
+  display: grid;
+  gap: clamp(1.5rem, 1rem + 2vw, 2.5rem);
+  margin-top: clamp(2.5rem, 1.5rem + 3vw, 4rem);
+}
+
+@media (min-width: 46rem) {
+  .plates {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+  }
+}
+
+.plate {
+  margin: 0;
+  display: grid;
+  gap: 0.85rem;
+}
+
+@media (min-width: 34rem) {
+  .plate {
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: start;
+    gap: 1.1rem;
+  }
+}
+
+.plate img {
+  display: block;
+  width: 100%;
+  max-width: 11rem;
+  /*
+   * One ratio for both, so the pair reads as a matched set the way plates in a
+   * report do. The two sources are 193x455 and 262x288 — left to their
+   * intrinsic sizes the first ran nearly twice the height of the second and
+   * the section grew a column of dead space beside it.
+   */
+  aspect-ratio: 4 / 5;
+  /* Required, not redundant. The width/height attributes on <img> map to
+     presentational hints, and a concrete height beats aspect-ratio — leaving
+     this out let plate 1 keep its intrinsic 455px and the ratio did nothing. */
+  height: auto;
+  object-fit: cover;
+  object-position: center;
+  border: 1px solid var(--rule);
+  /* Held slightly back from full saturation so the greens do not compete with
+     --verified, which on this page means something specific. */
+  filter: saturate(0.82) contrast(1.02);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .plate img {
+    filter: saturate(0.78) brightness(0.92);
+  }
+}
+
+:root[data-theme="dark"] .plate img {
+  filter: saturate(0.78) brightness(0.92);
+}
+
+.plate figcaption {
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--ink-soft);
+}
+
+.plate figcaption b {
+  display: block;
+  margin-bottom: 0.3rem;
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  font-weight: 400;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
 /* ── Summary bar ───────────────────────────────────────────────────── */
 
 /*
