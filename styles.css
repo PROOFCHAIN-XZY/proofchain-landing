@@ -1097,6 +1097,40 @@ a.chain__value::after,
   filter: saturate(0.78) brightness(0.92);
 }
 
+/*
+ * Inside a pipeline panel the plate sits under the tag row, separated by a
+ * rule, and goes full width of the body column — the panel is already narrow,
+ * so the side-by-side form used in the problem section would leave the caption
+ * about twenty characters wide.
+ */
+.plate--stage {
+  margin-top: 1.6rem;
+  padding-top: 1.4rem;
+  border-top: 1px solid var(--rule);
+  grid-template-columns: minmax(0, 1fr);
+}
+
+@media (min-width: 34rem) {
+  .plate--stage {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/*
+ * No forced ratio here. The three stage sources run from 0.87 to 2.67 in
+ * aspect, and only one panel is ever on screen at a time, so there is nothing
+ * to line them up against — a shared ratio would only crop the portrait ones
+ * to no purpose. Height is capped instead, so a tall plate cannot push the
+ * code panel below the fold.
+ */
+.plate--stage img {
+  max-width: 100%;
+  aspect-ratio: auto;
+  max-height: 19rem;
+  object-fit: cover;
+  object-position: center;
+}
+
 .plate figcaption {
   font-size: 0.875rem;
   line-height: 1.5;
