@@ -14,6 +14,13 @@ const PIPELINE = [
   {
     name: 'Capture',
     where: 'apps/capture · apps/mobile',
+    image: {
+      src: 'plate-weighin',
+      w: 262,
+      h: 288,
+      alt: 'A collector at a platform scale with a bagged load of PET, holding a handheld device.',
+      caption: 'The moment the record is made, and the only point in the chain with a physical referent.',
+    },
     lead: 'The collector photographs a weigh-in. The device builds a canonical payload and signs it with an ed25519 key that has never left the phone.',
     body: 'Canonical encoding — deterministic JSON, fixed field order — is shared by every signer so the signature is verifiable anywhere. With no signal the event queues in IndexedDB and drains on reconnect.',
     tags: ['ed25519', 'canonical JSON', 'IndexedDB queue', 'offline-first'],
@@ -55,6 +62,14 @@ clock delta  <span class="c-num">+0.299s</span>  <span class="c-dim">(tolerance 
   {
     name: 'Integrity',
     where: 'events/integrity.ts',
+    image: {
+      src: 'stage-integrity',
+      w: 193,
+      h: 250,
+      alt: 'A worker in a hi-vis vest entering a reading on a handheld device beside a bagged load of PET.',
+      caption:
+        'What the checks are about. Five of the seven examine this moment — the device, the place, the weight, the clock, the photograph.',
+    },
     lead: 'Seven pure checks run at ingest. Any failure quarantines the event permanently — it can never enter a batch.',
     body: 'The verdict is written once and never revised, so the audit trail records what we knew at the moment of receipt rather than a later reinterpretation.',
     tags: ['7 checks', 'quarantine on fail', 'verdict frozen at ingest'],
@@ -79,6 +94,13 @@ clock delta  <span class="c-num">+0.299s</span>  <span class="c-dim">(tolerance 
   {
     name: 'Batch',
     where: 'POST /batches/:id/seal',
+    image: {
+      src: 'stage-batch',
+      w: 426,
+      h: 490,
+      alt: 'Mixed PET discharging from a tipper into a sorting facility.',
+      caption: 'Many weigh-ins aggregate into one batch, the way the material itself does.',
+    },
     lead: 'An operator opens a batch for one hub and material, adds the clean events, then seals it.',
     body: 'Sealing computes a Merkle tree over the event hashes and freezes both membership and order. There is no rollback: a sealed batch cannot gain, lose, or reorder an event.',
     tags: ['open → sealed → processed', 'Merkle tree', 'no rollback'],
@@ -103,6 +125,13 @@ clock delta  <span class="c-num">+0.299s</span>  <span class="c-dim">(tolerance 
   {
     name: 'Anchor',
     where: 'services/anchor-worker',
+    image: {
+      src: 'stage-anchor',
+      w: 358,
+      h: 134,
+      alt: 'The curve of the Earth at night, seen from orbit.',
+      caption: 'The root leaves the building. From here the record is outside our control.',
+    },
     lead: 'The worker submits a Stellar transaction carrying the Merkle root, then reads it back off the ledger before recording the transaction ID.',
     body: 'The root travels twice — as a manageData entry and as memo.hash — so it is readable from the operation body and from the transaction envelope. Confirming from Horizon before persisting means a recorded anchor is an anchor that actually landed.',
     tags: ['manageData', 'memo.hash(root)', 'read-back confirmation', '100 stroops'],
@@ -420,6 +449,26 @@ const el = (html) => {
   return t.content.firstElementChild;
 };
 
+/**
+ * A stage plate. Only the three stages with a physical referent carry one —
+ * capture, batch and anchor. Ingest, integrity and report are computations, and
+ * an image against those would be decoration rather than evidence.
+ *
+ * @param {{src: string, w: number, h: number, alt: string, caption: string}} image
+ */
+function stageImage(image) {
+  return `
+    <figure class="plate plate--stage">
+      <picture>
+        <source srcset="assets/${image.src}.webp" type="image/webp" />
+        <img src="assets/${image.src}.png" width="${image.w}" height="${image.h}"
+             loading="lazy" decoding="async" alt="${image.alt}" />
+      </picture>
+      <figcaption><b>Illustration</b>${image.caption}</figcaption>
+    </figure>
+  `;
+}
+
 function renderPipeline() {
   const stepsHost = document.querySelector('[data-steps]');
   const panelsHost = document.querySelector('[data-panels]');
@@ -450,6 +499,7 @@ function renderPipeline() {
             <div class="panel__facts">
               ${stage.tags.map((t) => `<span class="tag">${t}</span>`).join('')}
             </div>
+            ${stage.image ? stageImage(stage.image) : ''}
           </div>
           <div class="terminal">
             <div class="terminal__bar">
