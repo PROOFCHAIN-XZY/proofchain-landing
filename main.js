@@ -494,8 +494,8 @@ function renderPipeline() {
         <div class="panel" role="tabpanel" id="panel-${id}" aria-labelledby="tab-${id}"
              tabindex="0" ${selected ? '' : 'hidden'}>
           <div class="panel__body">
-            <p style="color: var(--ink); font-size: 1.0625rem">${stage.lead}</p>
-            <p style="margin-top: 0.85rem">${stage.body}</p>
+            <p class="panel__lead">${stage.lead}</p>
+            <p>${stage.body}</p>
             <div class="panel__facts">
               ${stage.tags.map((t) => `<span class="tag">${t}</span>`).join('')}
             </div>

@@ -58,7 +58,57 @@
 
   --step: clamp(3.25rem, 2rem + 5vw, 6rem);
 
+
+  /*
+   * Type scale. Nine steps, and every font-size on the page resolves to one of
+   * them. The stylesheet previously carried nineteen fixed sizes, six of which
+   * sat between 9.6px and 11.2px — separate decisions nobody could tell apart
+   * on screen but each of which had to be maintained. Snapping to the scale
+   * moves nothing by more than half a pixel.
+   */
+  --text-3xs: 0.625rem;
+  --text-2xs: 0.6875rem;
+  --text-xs: 0.8125rem;
+  --text-sm: 0.875rem;
+  --text-md: 0.9375rem;
+  --text-base: 1rem;
+  --text-lg: 1.0625rem;
+  --text-xl: 1.125rem;
+  --text-2xl: 1.25rem;
+
+
+  /*
+   * Display sizes stay fluid — these are the only places where the size is a
+   * function of the viewport rather than a step on the scale. Named so the
+   * hierarchy is legible at the top of the file instead of being seven
+   * near-identical clamps scattered through it.
+   */
+  --text-display-1: clamp(2.6rem, 1.1rem + 6.2vw, 5.25rem);
+  --text-display-2: clamp(2rem, 1.1rem + 4vw, 4rem);
+  --text-display-3: clamp(1.9rem, 1.1rem + 2.6vw, 3.1rem);
+  --text-display-4: clamp(1.6rem, 1.1rem + 1.7vw, 2.35rem);
+  --text-display-5: clamp(1.5rem, 1rem + 2vw, 2.4rem);
+  --text-lede: clamp(1.05rem, 1rem + 0.4vw, 1.25rem);
+
+
+  /*
+   * Syntax colours for the code surface. These were seven raw hex values
+   * sitting in the component rules — the only colours on the page that could
+   * not follow a palette change, and the ones most likely to be missed when
+   * one happens, because the terminal keeps its own dark ground in both
+   * themes and so never looks obviously wrong.
+   */
+  --syntax-key: #9fb8ff;
+  --syntax-str: #8fd2ae;
+  --syntax-num: #e5b877;
+  --syntax-ok: #5fd1a3;
+  --syntax-bad: #f08a80;
+  --syntax-cmd: #ecebe8;
+
   --duration: 320ms;
+  /* Entrances are slower than state changes on purpose: a reveal is
+     narrating arrival, a hover is acknowledging a pointer. */
+  --duration-reveal: 620ms;
   --ease: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -147,7 +197,7 @@ body {
   background: var(--paper);
   color: var(--ink);
   font-family: var(--sans);
-  font-size: 1rem;
+  font-size: var(--text-base);
   line-height: 1.55;
   -webkit-font-smoothing: antialiased;
   font-variant-numeric: tabular-nums;
@@ -241,7 +291,7 @@ section {
   gap: 0.75rem;
   margin-bottom: 1.75rem;
   font-family: var(--mono);
-  font-size: 0.7rem;
+  font-size: var(--text-2xs);
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--ink-faint);
@@ -280,23 +330,23 @@ section {
 
 .section-head h2 {
   font-family: var(--serif);
-  font-size: clamp(1.9rem, 1.1rem + 2.6vw, 3.1rem);
+  font-size: var(--text-display-3);
   line-height: 1.06;
 }
 
 /* Supporting sections step down a size so the hero and pipeline stay dominant. */
 .section-head--tight h2 {
-  font-size: clamp(1.6rem, 1.1rem + 1.7vw, 2.35rem);
+  font-size: var(--text-display-4);
 }
 
 .section-head p {
   color: var(--ink-soft);
   max-width: var(--prose);
-  font-size: 1.0625rem;
+  font-size: var(--text-lg);
 }
 
 .lede {
-  font-size: clamp(1.05rem, 1rem + 0.4vw, 1.25rem);
+  font-size: var(--text-lede);
   color: var(--ink-soft);
   max-width: var(--prose);
 }
@@ -327,7 +377,7 @@ section {
   min-height: var(--tap);
   gap: 0.6rem;
   font-family: var(--serif);
-  font-size: 1.1rem;
+  font-size: var(--text-xl);
   letter-spacing: -0.01em;
   color: var(--ink);
   text-decoration: none;
@@ -360,7 +410,7 @@ section {
   gap: 0 1.25rem;
   padding-block: 0.25rem 0.6rem;
   border-top: 1px solid var(--rule-soft);
-  font-size: 0.875rem;
+  font-size: var(--text-sm);
 }
 
 @media (min-width: 56rem) {
@@ -547,7 +597,7 @@ section {
   padding: 0.7rem 1rem;
   background: var(--ink);
   color: var(--paper);
-  font-size: 0.875rem;
+  font-size: var(--text-sm);
   text-decoration: none;
   border-radius: 2px;
   transform: translateY(-200%);
@@ -570,7 +620,7 @@ section {
   background: transparent;
   color: var(--ink);
   font: inherit;
-  font-size: 0.875rem;
+  font-size: var(--text-sm);
   text-decoration: none;
   cursor: pointer;
   transition: background var(--duration) var(--ease), color var(--duration) var(--ease),
@@ -649,7 +699,7 @@ section {
   border: 1px solid currentColor;
   border-radius: 999px;
   font-family: var(--mono);
-  font-size: 0.68rem;
+  font-size: var(--text-2xs);
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--pending);
@@ -666,7 +716,7 @@ section {
 .hero h1 {
   margin-top: 1.5rem;
   font-family: var(--serif);
-  font-size: clamp(2.6rem, 1.1rem + 6.2vw, 5.25rem);
+  font-size: var(--text-display-1);
   line-height: 0.98;
   letter-spacing: -0.035em;
 }
@@ -682,7 +732,7 @@ section {
 .hero__lede {
   margin-top: 1.75rem;
   max-width: 34rem;
-  font-size: clamp(1.05rem, 1rem + 0.5vw, 1.3rem);
+  font-size: var(--text-lede);
   color: var(--ink-soft);
 }
 
@@ -712,7 +762,7 @@ section {
 
 .built__label {
   font-family: var(--mono);
-  font-size: 0.62rem;
+  font-size: var(--text-3xs);
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--ink-faint);
@@ -720,14 +770,14 @@ section {
 
 .built__name {
   font-family: var(--serif);
-  font-size: 1.0625rem;
+  font-size: var(--text-lg);
   color: var(--ink);
   text-decoration-color: var(--rule);
 }
 
 .built__detail {
   font-family: var(--mono);
-  font-size: 0.68rem;
+  font-size: var(--text-2xs);
   letter-spacing: 0.04em;
   color: var(--ink-faint);
 }
@@ -778,7 +828,7 @@ section {
 
 .stat dt {
   font-family: var(--mono);
-  font-size: 0.66rem;
+  font-size: var(--text-2xs);
   line-height: 1.45;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -789,7 +839,7 @@ section {
 .stat dd {
   margin: 0;
   font-family: var(--serif);
-  font-size: clamp(1.6rem, 1.1rem + 1.4vw, 2.3rem);
+  font-size: var(--text-display-4);
   line-height: 1;
   letter-spacing: -0.02em;
 }
@@ -837,7 +887,7 @@ section {
 
 .receipt__title {
   font-family: var(--mono);
-  font-size: 0.68rem;
+  font-size: var(--text-2xs);
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--ink-faint);
@@ -850,7 +900,7 @@ section {
   padding: 0.2rem 0.55rem;
   border-radius: 2px;
   font-family: var(--mono);
-  font-size: 0.66rem;
+  font-size: var(--text-2xs);
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--verified);
@@ -876,7 +926,7 @@ section {
 
 .receipt__row dt {
   font-family: var(--mono);
-  font-size: 0.66rem;
+  font-size: var(--text-2xs);
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--ink-faint);
@@ -886,7 +936,7 @@ section {
 .receipt__row dd {
   margin: 0;
   font-family: var(--mono);
-  font-size: 0.78rem;
+  font-size: var(--text-xs);
   line-height: 1.5;
   word-break: break-all;
 }
@@ -898,7 +948,18 @@ section {
 .receipt__foot {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
+  /*
+   * Row gap is tripled because these controls carry 44px hit zones on a ~26px
+   * visual box. Stacked at the old 8px gap the two zones overlapped by more
+   * than half, and the lower control — painted last — took taps aimed at the
+   * button above it.
+   *
+   * The requirement is on the centres, not the boxes: two 44px zones only stop
+   * fighting once their centres are more than 44px apart. At 8px of gap that
+   * distance was 35px, and at 16px it was 43px — still one pixel short, which
+   * is how the first attempt at this fix stayed red.
+   */
+  gap: 1.5rem 0.5rem;
   padding: 0.9rem 1.25rem;
   border-top: 1px solid var(--rule);
   background: var(--paper-deep);
@@ -908,7 +969,7 @@ section {
   margin-top: 1.5rem;
   padding-left: 0.9rem;
   border-left: 2px solid var(--rule);
-  font-size: 0.8125rem;
+  font-size: var(--text-xs);
   color: var(--ink-faint);
   max-width: 34rem;
 }
@@ -964,7 +1025,7 @@ a.chain__value::after,
   background: transparent;
   color: var(--ink-soft);
   font-family: var(--mono);
-  font-size: 0.66rem;
+  font-size: var(--text-2xs);
   letter-spacing: 0.08em;
   text-transform: uppercase;
   cursor: pointer;
@@ -1015,7 +1076,7 @@ a.chain__value::after,
 .threat blockquote {
   margin: 0;
   font-family: var(--serif);
-  font-size: clamp(1.5rem, 1rem + 2vw, 2.4rem);
+  font-size: var(--text-display-5);
   line-height: 1.18;
   letter-spacing: -0.02em;
 }
@@ -1139,7 +1200,7 @@ a.chain__value::after,
 }
 
 .plate figcaption {
-  font-size: 0.875rem;
+  font-size: var(--text-sm);
   line-height: 1.5;
   color: var(--ink-soft);
 }
@@ -1148,7 +1209,7 @@ a.chain__value::after,
   display: block;
   margin-bottom: 0.3rem;
   font-family: var(--mono);
-  font-size: 0.6rem;
+  font-size: var(--text-3xs);
   font-weight: 400;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -1229,15 +1290,42 @@ a.chain__value::after,
 
 .summary__title {
   margin-top: 0.7rem;
-  font-size: 0.9375rem;
+  font-size: var(--text-md);
   color: var(--ink);
 }
 
 .summary__note {
   margin-top: 0.2rem;
-  font-size: 0.8125rem;
+  font-size: var(--text-xs);
   line-height: 1.4;
   color: var(--ink-soft);
+}
+
+/*
+ * Panel prose. These two rules replace inline styles that main.js was writing
+ * into every panel it rendered — styling decisions living in the renderer,
+ * where no one looking at the stylesheet would find them.
+ */
+.panel__lead {
+  color: var(--ink);
+  font-size: var(--text-lg);
+}
+
+.panel__body p + p {
+  margin-top: 0.85rem;
+}
+
+/* Also lifted out of the markup: the closing lede and the footer blurb both
+   carried their spacing and colour as style attributes. */
+.closing__lede {
+  margin-top: 1.5rem;
+}
+
+.footer__blurb {
+  margin-top: 0.85rem;
+  max-width: 26rem;
+  color: var(--ink-soft);
+  font-size: var(--text-md);
 }
 
 /* ── Merkle construction ───────────────────────────────────────────── */
@@ -1274,7 +1362,7 @@ a.chain__value::after,
 
 .merkle__name {
   font-family: var(--serif);
-  font-size: 1.125rem;
+  font-size: var(--text-xl);
   color: var(--ink);
 }
 
@@ -1290,7 +1378,7 @@ a.chain__value::after,
 
 .merkle__spec code {
   font-family: var(--mono);
-  font-size: 0.8125rem;
+  font-size: var(--text-xs);
   line-height: 1.7;
   color: var(--terminal-ink);
   white-space: pre;
@@ -1298,7 +1386,7 @@ a.chain__value::after,
 
 .merkle__stops {
   margin-top: 0.9rem;
-  font-size: 0.9375rem;
+  font-size: var(--text-md);
   color: var(--ink-soft);
 }
 
@@ -1306,7 +1394,7 @@ a.chain__value::after,
   display: block;
   margin-bottom: 0.25rem;
   font-family: var(--mono);
-  font-size: 0.62rem;
+  font-size: var(--text-3xs);
   font-weight: 400;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -1349,13 +1437,13 @@ a.chain__value::after,
   flex-wrap: wrap;
   gap: 0.5rem;
   font-family: var(--serif);
-  font-size: 1.0625rem;
+  font-size: var(--text-lg);
   color: var(--ink);
 }
 
 .chain__num {
   font-family: var(--mono);
-  font-size: 0.62rem;
+  font-size: var(--text-3xs);
   letter-spacing: 0.14em;
   color: var(--ink-faint);
 }
@@ -1363,7 +1451,7 @@ a.chain__value::after,
 .chain__where {
   width: 100%;
   font-family: var(--mono);
-  font-size: 0.66rem;
+  font-size: var(--text-2xs);
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--ink-faint);
@@ -1372,7 +1460,7 @@ a.chain__value::after,
 .chain__label {
   margin-top: 1.1rem;
   font-family: var(--mono);
-  font-size: 0.6rem;
+  font-size: var(--text-3xs);
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--ink-faint);
@@ -1384,7 +1472,7 @@ a.chain__value::after,
   display: block;
   margin-top: 0.3rem;
   font-family: var(--mono);
-  font-size: 1rem;
+  font-size: var(--text-base);
   color: var(--ink);
   /*
    * No break-all here. Every value in this row is already elided to a short
@@ -1403,7 +1491,7 @@ a.chain__value {
 
 .chain__note {
   margin-top: 0.7rem;
-  font-size: 0.875rem;
+  font-size: var(--text-sm);
   line-height: 1.45;
   color: var(--ink-soft);
 }
@@ -1424,7 +1512,7 @@ a.chain__value {
   justify-content: center;
   padding-block: 0.85rem;
   font-family: var(--mono);
-  font-size: 0.6rem;
+  font-size: var(--text-3xs);
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--ink-faint);
@@ -1514,15 +1602,15 @@ a.chain__value {
   }
 
   .chain__value {
-    font-size: 0.875rem;
+    font-size: var(--text-sm);
   }
 
   .chain__note {
-    font-size: 0.8125rem;
+    font-size: var(--text-xs);
   }
 
   .chain__step {
-    font-size: 1rem;
+    font-size: var(--text-base);
   }
 }
 
@@ -1621,7 +1709,7 @@ a.chain__value {
 
 .step__num {
   font-family: var(--mono);
-  font-size: 0.66rem;
+  font-size: var(--text-2xs);
   letter-spacing: 0.12em;
   color: var(--ink-faint);
 }
@@ -1630,7 +1718,7 @@ a.chain__value {
   display: block;
   margin-top: 0.2rem;
   font-family: var(--serif);
-  font-size: 1.25rem;
+  font-size: var(--text-2xl);
   letter-spacing: -0.01em;
 }
 
@@ -1638,7 +1726,7 @@ a.chain__value {
   display: block;
   margin-top: 0.15rem;
   font-family: var(--mono);
-  font-size: 0.68rem;
+  font-size: var(--text-2xs);
   color: var(--ink-faint);
 }
 
@@ -1668,7 +1756,7 @@ a.chain__value {
   border: 1px solid var(--rule);
   border-radius: 2px;
   font-family: var(--mono);
-  font-size: 0.68rem;
+  font-size: var(--text-2xs);
   color: var(--ink-soft);
   background: var(--surface);
 }
@@ -1678,7 +1766,7 @@ a.chain__value {
 .terminal {
   background: var(--terminal-bg);
   border: 1px solid var(--terminal-rule);
-  border-radius: 3px;
+  border-radius: 2px;
   overflow: hidden;
 }
 
@@ -1693,7 +1781,7 @@ a.chain__value {
 
 .terminal__name {
   font-family: var(--mono);
-  font-size: 0.68rem;
+  font-size: var(--text-2xs);
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--terminal-faint);
@@ -1714,32 +1802,32 @@ a.chain__value {
   padding: 1.1rem 1.2rem;
   overflow-x: auto;
   font-family: var(--mono);
-  font-size: 0.78rem;
+  font-size: var(--text-xs);
   line-height: 1.7;
   color: var(--terminal-ink);
   tab-size: 2;
 }
 
 .terminal .c-key {
-  color: #9fb8ff;
+  color: var(--syntax-key);
 }
 .terminal .c-str {
-  color: #8fd2ae;
+  color: var(--syntax-str);
 }
 .terminal .c-num {
-  color: #e5b877;
+  color: var(--syntax-num);
 }
 .terminal .c-dim {
   color: var(--terminal-faint);
 }
 .terminal .c-ok {
-  color: #5fd1a3;
+  color: var(--syntax-ok);
 }
 .terminal .c-bad {
-  color: #f08a80;
+  color: var(--syntax-bad);
 }
 .terminal .c-cmd {
-  color: #ecebe8;
+  color: var(--syntax-cmd);
 }
 
 /* ── Integrity checks ──────────────────────────────────────────────── */
@@ -1777,7 +1865,7 @@ a.chain__value {
 
 .check__name {
   font-family: var(--mono);
-  font-size: 0.82rem;
+  font-size: var(--text-xs);
   color: var(--ink);
 }
 
@@ -1790,7 +1878,7 @@ a.chain__value {
 
 .check__verdict {
   font-family: var(--mono);
-  font-size: 0.62rem;
+  font-size: var(--text-3xs);
   letter-spacing: 0.1em;
   text-transform: uppercase;
   padding: 0.15rem 0.4rem;
@@ -1809,14 +1897,14 @@ a.chain__value {
 
 .check__defends {
   margin-top: 0.7rem;
-  font-size: 0.9375rem;
+  font-size: var(--text-md);
   color: var(--ink-soft);
 }
 
 .check__defends b {
   display: block;
   font-family: var(--mono);
-  font-size: 0.62rem;
+  font-size: var(--text-3xs);
   font-weight: 400;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -1843,7 +1931,7 @@ a.chain__value {
   background: transparent;
   color: var(--ink-faint);
   font-family: var(--mono);
-  font-size: 0.7rem;
+  font-size: var(--text-2xs);
   cursor: pointer;
   transition: color var(--duration) var(--ease), border-color var(--duration) var(--ease),
     background var(--duration) var(--ease);
@@ -1879,7 +1967,7 @@ a.chain__value {
   padding-bottom: 0.75rem;
   border-bottom: 1px solid var(--rule-strong);
   font-family: var(--mono);
-  font-size: 0.7rem;
+  font-size: var(--text-2xs);
   letter-spacing: 0.14em;
   text-transform: uppercase;
 }
@@ -1896,12 +1984,12 @@ a.chain__value {
   gap: 0.6rem;
   padding: 0.85rem 0;
   border-bottom: 1px solid var(--rule);
-  font-size: 0.9375rem;
+  font-size: var(--text-md);
 }
 
 .scope__col li span {
   font-family: var(--mono);
-  font-size: 0.85rem;
+  font-size: var(--text-sm);
   line-height: 1.5;
 }
 
@@ -1926,7 +2014,7 @@ a.chain__value {
   display: block;
   font-style: normal;
   color: var(--ink-faint);
-  font-size: 0.875rem;
+  font-size: var(--text-sm);
 }
 
 /* ── Closing call ──────────────────────────────────────────────────── */
@@ -1938,7 +2026,7 @@ a.chain__value {
 
 .closing h2 {
   font-family: var(--serif);
-  font-size: clamp(2rem, 1.1rem + 4vw, 4rem);
+  font-size: var(--text-display-2);
   line-height: 1.02;
   max-width: 20ch;
 }
@@ -1969,7 +2057,7 @@ footer {
 .footer__grid h4 {
   margin: 0 0 0.85rem;
   font-family: var(--mono);
-  font-size: 0.66rem;
+  font-size: var(--text-2xs);
   font-weight: 400;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -1981,7 +2069,7 @@ footer {
   margin: 0;
   padding: 0;
   display: grid;
-  font-size: 0.875rem;
+  font-size: var(--text-sm);
 }
 
 .footer__grid li {
@@ -2015,7 +2103,7 @@ footer {
   flex-wrap: wrap;
   gap: 0.75rem 1.5rem;
   justify-content: space-between;
-  font-size: 0.8125rem;
+  font-size: var(--text-xs);
   color: var(--ink-faint);
 }
 
@@ -2032,7 +2120,7 @@ footer {
   padding: 0.9rem 0 0.9rem 1rem;
   max-width: 46rem;
   color: var(--ink-soft);
-  font-size: 0.9375rem;
+  font-size: var(--text-md);
 }
 
 .fallback a {
@@ -2066,7 +2154,8 @@ footer {
 .reveal {
   opacity: 0;
   transform: translateY(14px);
-  transition: opacity 620ms var(--ease), transform 620ms var(--ease);
+  transition: opacity var(--duration-reveal) var(--ease),
+    transform var(--duration-reveal) var(--ease);
 }
 
 .reveal.is-in {
