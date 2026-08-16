@@ -62,6 +62,14 @@ clock delta  <span class="c-num">+0.299s</span>  <span class="c-dim">(tolerance 
   {
     name: 'Integrity',
     where: 'events/integrity.ts',
+    image: {
+      src: 'stage-integrity',
+      w: 193,
+      h: 250,
+      alt: 'A worker in a hi-vis vest entering a reading on a handheld device beside a bagged load of PET.',
+      caption:
+        'What the checks are about. Five of the seven examine this moment — the device, the place, the weight, the clock, the photograph.',
+    },
     lead: 'Seven pure checks run at ingest. Any failure quarantines the event permanently — it can never enter a batch.',
     body: 'The verdict is written once and never revised, so the audit trail records what we knew at the moment of receipt rather than a later reinterpretation.',
     tags: ['7 checks', 'quarantine on fail', 'verdict frozen at ingest'],

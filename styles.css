@@ -1124,11 +1124,18 @@ a.chain__value::after,
  * code panel below the fold.
  */
 .plate--stage img {
+  /*
+   * Natural size, bounded — not stretched to the column. These crops are
+   * between 193px and 426px wide; filling a ~700px panel meant a 3.6x upscale,
+   * and with object-fit: cover the Integrity plate lost the worker's head and
+   * the load entirely, leaving a pair of hands. Bounding instead of filling
+   * keeps every plate crisp and keeps the whole subject in frame.
+   */
+  width: auto;
   max-width: 100%;
   aspect-ratio: auto;
   max-height: 19rem;
-  object-fit: cover;
-  object-position: center;
+  object-fit: contain;
 }
 
 .plate figcaption {
