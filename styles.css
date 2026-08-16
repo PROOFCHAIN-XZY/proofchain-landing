@@ -90,7 +90,25 @@
   --text-display-5: clamp(1.5rem, 1rem + 2vw, 2.4rem);
   --text-lede: clamp(1.05rem, 1rem + 0.4vw, 1.25rem);
 
+
+  /*
+   * Syntax colours for the code surface. These were seven raw hex values
+   * sitting in the component rules — the only colours on the page that could
+   * not follow a palette change, and the ones most likely to be missed when
+   * one happens, because the terminal keeps its own dark ground in both
+   * themes and so never looks obviously wrong.
+   */
+  --syntax-key: #9fb8ff;
+  --syntax-str: #8fd2ae;
+  --syntax-num: #e5b877;
+  --syntax-ok: #5fd1a3;
+  --syntax-bad: #f08a80;
+  --syntax-cmd: #ecebe8;
+
   --duration: 320ms;
+  /* Entrances are slower than state changes on purpose: a reveal is
+     narrating arrival, a hover is acknowledging a pointer. */
+  --duration-reveal: 620ms;
   --ease: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -1283,6 +1301,33 @@ a.chain__value::after,
   color: var(--ink-soft);
 }
 
+/*
+ * Panel prose. These two rules replace inline styles that main.js was writing
+ * into every panel it rendered — styling decisions living in the renderer,
+ * where no one looking at the stylesheet would find them.
+ */
+.panel__lead {
+  color: var(--ink);
+  font-size: var(--text-lg);
+}
+
+.panel__body p + p {
+  margin-top: 0.85rem;
+}
+
+/* Also lifted out of the markup: the closing lede and the footer blurb both
+   carried their spacing and colour as style attributes. */
+.closing__lede {
+  margin-top: 1.5rem;
+}
+
+.footer__blurb {
+  margin-top: 0.85rem;
+  max-width: 26rem;
+  color: var(--ink-soft);
+  font-size: var(--text-md);
+}
+
 /* ── Merkle construction ───────────────────────────────────────────── */
 
 /*
@@ -1721,7 +1766,7 @@ a.chain__value {
 .terminal {
   background: var(--terminal-bg);
   border: 1px solid var(--terminal-rule);
-  border-radius: 3px;
+  border-radius: 2px;
   overflow: hidden;
 }
 
@@ -1764,25 +1809,25 @@ a.chain__value {
 }
 
 .terminal .c-key {
-  color: #9fb8ff;
+  color: var(--syntax-key);
 }
 .terminal .c-str {
-  color: #8fd2ae;
+  color: var(--syntax-str);
 }
 .terminal .c-num {
-  color: #e5b877;
+  color: var(--syntax-num);
 }
 .terminal .c-dim {
   color: var(--terminal-faint);
 }
 .terminal .c-ok {
-  color: #5fd1a3;
+  color: var(--syntax-ok);
 }
 .terminal .c-bad {
-  color: #f08a80;
+  color: var(--syntax-bad);
 }
 .terminal .c-cmd {
-  color: #ecebe8;
+  color: var(--syntax-cmd);
 }
 
 /* ── Integrity checks ──────────────────────────────────────────────── */
@@ -2109,7 +2154,8 @@ footer {
 .reveal {
   opacity: 0;
   transform: translateY(14px);
-  transition: opacity 620ms var(--ease), transform 620ms var(--ease);
+  transition: opacity var(--duration-reveal) var(--ease),
+    transform var(--duration-reveal) var(--ease);
 }
 
 .reveal.is-in {
