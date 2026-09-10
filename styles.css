@@ -6,10 +6,17 @@
  * hairline rules instead of card shadows, tabular numerals, and colour reserved
  * strictly for verification state. Nothing decorative competes with the evidence.
  *
- * Type is a motivated triple stack rather than a UI default:
- *   Newsreader     — a news serif built for long-form argument
- *   Public Sans    — the US public-records typeface, made for government documents
- *   JetBrains Mono — true tabular figures, for hashes, weights and ledger numbers
+ * Type is a motivated triple stack rather than a UI default, and it is the same
+ * stack the product itself loads — see the token block below:
+ *   Newsreader     — a news serif built for long-form argument, with an optical
+ *                    size axis, so a 60px title and a 20px subhead are drawn
+ *                    rather than scaled
+ *   Archivo        — a grotesque with a full 100–900 variable range and sturdy
+ *                    tabular figures, which is what actually aligns a column of
+ *                    weights
+ *   JetBrains Mono — machine strings only: hashes, transaction ids, ledger
+ *                    sequences, keys, paths, code. Not labels. A weight is a
+ *                    quantity and is set in Archivo
  *
  * Every family degrades to a system stack, so the page still reads correctly
  * offline or over file://.
@@ -44,8 +51,25 @@
   --terminal-faint: #82868e;
   --terminal-rule: #2c2e33;
 
+  /*
+   * Three faces, and the same three the product uses — the dashboard, the
+   * requester app and the field capture app all load exactly these, so a credit
+   * buyer who follows a verification link out of this page does not land on a
+   * different company. See `proofchain/apps/dashboard/src/app/(operator)/globals.css`.
+   *
+   *   --serif  Newsreader      headings. Optical-size axis, so it is redrawn
+   *                            for the size rather than scaled to it.
+   *   --sans   Archivo         everything else, figures included.
+   *   --mono   JetBrains Mono  machine strings only — hashes, transaction ids,
+   *                            ledger sequences, keys, code.
+   *
+   * That last line is a rule, not a description. Mono belongs on strings a
+   * reader has to check character by character against another copy, which is
+   * the whole proposition of this page; spending it on eyebrows and captions as
+   * well is what made it stop meaning anything.
+   */
   --serif: "Newsreader", ui-serif, Georgia, "Iowan Old Style", "Times New Roman", serif;
-  --sans: "Public Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --sans: "Archivo", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   --mono: "JetBrains Mono", ui-monospace, "SF Mono", "Cascadia Mono", Menlo, monospace;
 
   /* Minimum comfortable tap area — hit zones are expanded to this without
@@ -290,10 +314,10 @@ section {
   align-items: baseline;
   gap: 0.75rem;
   margin-bottom: 1.75rem;
-  font-family: var(--mono);
+  font-family: var(--sans);
+  font-weight: 600;
   font-size: var(--text-2xs);
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
+  letter-spacing: 0.01em;
   color: var(--ink-faint);
 }
 
@@ -698,10 +722,10 @@ section {
   padding: 0.3rem 0.65rem;
   border: 1px solid currentColor;
   border-radius: 999px;
-  font-family: var(--mono);
+  font-family: var(--sans);
+  font-weight: 600;
   font-size: var(--text-2xs);
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  letter-spacing: 0.01em;
   color: var(--pending);
   background: var(--pending-bg);
 }
@@ -761,10 +785,10 @@ section {
 }
 
 .built__label {
-  font-family: var(--mono);
+  font-family: var(--sans);
+  font-weight: 600;
   font-size: var(--text-3xs);
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
+  letter-spacing: 0.01em;
   color: var(--ink-faint);
 }
 
@@ -775,10 +799,13 @@ section {
   text-decoration-color: var(--rule);
 }
 
+/* "classic layer, public testnet" — a description of the network, not a
+   machine string, so it reads in the text face like the rest of the sentence
+   it is part of. */
 .built__detail {
-  font-family: var(--mono);
+  font-family: var(--sans);
   font-size: var(--text-2xs);
-  letter-spacing: 0.04em;
+  letter-spacing: 0.01em;
   color: var(--ink-faint);
 }
 
@@ -827,11 +854,11 @@ section {
 }
 
 .stat dt {
-  font-family: var(--mono);
+  font-family: var(--sans);
+  font-weight: 600;
   font-size: var(--text-2xs);
   line-height: 1.45;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+  letter-spacing: 0.01em;
   color: var(--ink-faint);
   text-wrap: balance;
 }
@@ -886,10 +913,10 @@ section {
 }
 
 .receipt__title {
-  font-family: var(--mono);
+  font-family: var(--sans);
+  font-weight: 600;
   font-size: var(--text-2xs);
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  letter-spacing: 0.01em;
   color: var(--ink-faint);
 }
 
@@ -899,10 +926,10 @@ section {
   gap: 0.4rem;
   padding: 0.2rem 0.55rem;
   border-radius: 2px;
-  font-family: var(--mono);
+  font-family: var(--sans);
+  font-weight: 600;
   font-size: var(--text-2xs);
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  letter-spacing: 0.01em;
   color: var(--verified);
   background: var(--verified-bg);
 }
@@ -925,10 +952,10 @@ section {
 }
 
 .receipt__row dt {
-  font-family: var(--mono);
+  font-family: var(--sans);
+  font-weight: 600;
   font-size: var(--text-2xs);
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  letter-spacing: 0.01em;
   color: var(--ink-faint);
   padding-top: 0.15rem;
 }
@@ -1024,10 +1051,10 @@ a.chain__value::after,
   border-radius: 2px;
   background: transparent;
   color: var(--ink-soft);
-  font-family: var(--mono);
+  font-family: var(--sans);
+  font-weight: 600;
   font-size: var(--text-2xs);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  letter-spacing: 0.01em;
   cursor: pointer;
   transition: color var(--duration) var(--ease), border-color var(--duration) var(--ease);
 }
@@ -1208,11 +1235,10 @@ a.chain__value::after,
 .plate figcaption b {
   display: block;
   margin-bottom: 0.3rem;
-  font-family: var(--mono);
+  font-family: var(--sans);
   font-size: var(--text-3xs);
-  font-weight: 400;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.01em;
   color: var(--ink-faint);
 }
 
@@ -1393,11 +1419,10 @@ a.chain__value::after,
 .merkle__stops b {
   display: block;
   margin-bottom: 0.25rem;
-  font-family: var(--mono);
+  font-family: var(--sans);
   font-size: var(--text-3xs);
-  font-weight: 400;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.01em;
   color: var(--broken);
 }
 
@@ -1448,21 +1473,23 @@ a.chain__value::after,
   color: var(--ink-faint);
 }
 
+/* These are paths and routes — `apps/capture`, `POST /events`,
+   `events/integrity.ts` — so this one keeps the mono. It is the only label in
+   the group whose content is a machine string rather than a name for one. */
 .chain__where {
   width: 100%;
   font-family: var(--mono);
   font-size: var(--text-2xs);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  letter-spacing: 0.02em;
   color: var(--ink-faint);
 }
 
 .chain__label {
   margin-top: 1.1rem;
-  font-family: var(--mono);
+  font-family: var(--sans);
+  font-weight: 600;
   font-size: var(--text-3xs);
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  letter-spacing: 0.01em;
   color: var(--ink-faint);
 }
 
@@ -1511,10 +1538,10 @@ a.chain__value {
   align-items: center;
   justify-content: center;
   padding-block: 0.85rem;
-  font-family: var(--mono);
+  font-family: var(--sans);
+  font-weight: 600;
   font-size: var(--text-3xs);
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  letter-spacing: 0.01em;
   color: var(--ink-faint);
 }
 
@@ -1782,8 +1809,7 @@ a.chain__value {
 .terminal__name {
   font-family: var(--mono);
   font-size: var(--text-2xs);
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  letter-spacing: 0.02em;
   color: var(--terminal-faint);
 }
 
@@ -1877,10 +1903,10 @@ a.chain__value {
 }
 
 .check__verdict {
-  font-family: var(--mono);
+  font-family: var(--sans);
+  font-weight: 600;
   font-size: var(--text-3xs);
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  letter-spacing: 0.01em;
   padding: 0.15rem 0.4rem;
   border-radius: 2px;
 }
@@ -1903,11 +1929,10 @@ a.chain__value {
 
 .check__defends b {
   display: block;
-  font-family: var(--mono);
+  font-family: var(--sans);
   font-size: var(--text-3xs);
-  font-weight: 400;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.01em;
   color: var(--ink-faint);
   margin-bottom: 0.25rem;
 }
@@ -1930,7 +1955,10 @@ a.chain__value {
   border-radius: 2px;
   background: transparent;
   color: var(--ink-faint);
-  font-family: var(--mono);
+  /* These read "1 · download", "2 · recompute root" — the names of steps, so
+     they are set like the other labels on the page rather than like code. */
+  font-family: var(--sans);
+  font-weight: 600;
   font-size: var(--text-2xs);
   cursor: pointer;
   transition: color var(--duration) var(--ease), border-color var(--duration) var(--ease),
@@ -1966,10 +1994,10 @@ a.chain__value {
   gap: 0.6rem;
   padding-bottom: 0.75rem;
   border-bottom: 1px solid var(--rule-strong);
-  font-family: var(--mono);
+  font-family: var(--sans);
+  font-weight: 600;
   font-size: var(--text-2xs);
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  letter-spacing: 0.01em;
 }
 
 .scope__col ul {
@@ -2056,11 +2084,10 @@ footer {
 
 .footer__grid h4 {
   margin: 0 0 0.85rem;
-  font-family: var(--mono);
+  font-family: var(--sans);
   font-size: var(--text-2xs);
-  font-weight: 400;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.01em;
   color: var(--ink-faint);
 }
 

@@ -482,7 +482,7 @@ function renderPipeline() {
       el(`
         <button class="step" role="tab" id="tab-${id}" aria-controls="panel-${id}"
                 aria-selected="${selected}" tabindex="${selected ? 0 : -1}">
-          <span class="step__num">STEP ${String(i + 1).padStart(2, '0')}</span>
+          <span class="step__num">Step ${String(i + 1).padStart(2, '0')}</span>
           <span class="step__name">${stage.name}</span>
           <span class="step__where">${stage.where}</span>
         </button>
